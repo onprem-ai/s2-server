@@ -31,7 +31,9 @@ a step, a setting, a rule, a pitfall, written generically.
 
 When a step needs both of you (the person types a password, you run and read the
 commands), use one shared `tmux` session on the machine
-([04](04-provisioning.md) Phase 1, "Admin tools") instead of copy and paste:
+([04](04-provisioning.md) Phase 1, "Admin tools") instead of copy and paste. The
+person stays in control of every `sudo` and never shows a password; you type the
+commands and read every line of output yourself, nothing is lost in copying.
 
 - Ask the person to start it once: `tmux new -A -s work` (as `ops`). They type `sudo`
   and other passwords there; never ask for a password in the conversation.
@@ -52,6 +54,9 @@ commands), use one shared `tmux` session on the machine
   safe way to look; typing goes through `send-keys`.
 - Always look right before typing: a prompt waiting for a password takes your command
   as the password (a failed `sudo` or a lock screen login attempt).
+- When a `[sudo] password` prompt appears, tell the person at once: `sudo` gives up
+  after 5 minutes ("timed out reading password") and the command must be typed again.
+  Put all root steps of a phase in one script, so one password covers them.
 - Long steps (upgrades, driver builds, memory tests) run in that session or with
   `tee` to a log file, so a dropped connection loses nothing.
 

@@ -86,16 +86,20 @@ Standard: GPU fan A on channel 4, GPU fan B on channel 6
 
 ## Acceptance
 
-| Check | Date | Result |
-|---|---|---|
-| Memory test | | |
-| GPU thermal (10 min, 2x 500 W) | | max temp ___ C, fan duty ___ % |
-| GPU stability (1 h) | | |
-| Disks | | |
-| Power loss, BMC power cycle | | |
-| Network failover | | |
-| Host checks ([05](05-acceptance.md) section 2) | | |
-| Inventory file attached | | `/root/inventory-YYYYMMDD.txt` |
+Every check: who performed it, when, and the result. The passing rows become the
+customer's [acceptance certificate](acceptance-certificate.md).
+
+| Check | Performed by | Date | Result |
+|---|---|---|---|
+| Memory test | | | |
+| GPU thermal (10 min, 2x 500 W) | | | max temp ___ C, fan duty ___ % |
+| GPU stability (1 h) | | | |
+| Disks | | | |
+| Power loss, BMC power cycle | | | |
+| Network failover | | | |
+| Host checks ([05](05-acceptance.md) section 2) | | | |
+| Containers, platform node verified ([05](05-acceptance.md) section 4) | | | |
+| Inventory file attached | | | `/root/inventory-YYYYMMDD.txt` |
 
 ## Production log
 

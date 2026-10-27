@@ -123,7 +123,7 @@ starting past NCCL initialization with no `IO_PAGE_FAULT` in `dmesg`.
 
 Fill in the [machine record](machine-record.md): the inventory from
 [04](04-provisioning.md) Phase 1, the output of section 2, the burn-in results, and the
-firmware and driver versions.
+firmware and driver versions. For every check: who performed it and when.
 
 ## 4. Hand off: install the platform
 
@@ -160,3 +160,10 @@ are in the debug guide **Inference Node Container Detection**.
 Then deploy one small model and one model that uses every GPU of the machine (on a
 multi-GPU machine, a tensor-parallel one). The first proves the container path, the
 second proves peer-to-peer.
+
+## 5. Acceptance certificate for the customer
+
+When every check passed, fill in the [acceptance certificate](acceptance-certificate.md)
+from the record's **Acceptance** table: each check, who performed it, when, and the
+result. The person who approves the machine signs it. It goes to the customer with
+the machine; a copy stays with the record.

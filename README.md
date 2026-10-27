@@ -33,7 +33,9 @@ This repository is generic: it holds no data about specific machines (rules for
 contributors and AI agents: [CLAUDE.md](CLAUDE.md)). Per machine:
 [machine-record.md](machine-record.md), an empty template: copy it to the **fleet
 repository** (separate, one record per machine) and fill it in there, from step 2 to
-step 5.
+step 5. At handoff the customer gets an
+[acceptance certificate](acceptance-certificate.md): every check passed, who
+performed it, when.
 
 ## Other folders
 

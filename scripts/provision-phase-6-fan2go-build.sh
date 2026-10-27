@@ -2,7 +2,7 @@
 # Build fan2go 0.15.0 from source on Rocky Linux 10 (the release binary needs libsensors.so.5; Rocky has .so.4).
 set -euo pipefail
 V=0.15.0
-dnf install -y --disablerepo=nvidia-container-toolkit golang lm_sensors-devel make git
+dnf install -y golang lm_sensors lm_sensors-devel make git
 rm -rf /tmp/fan2go-src && git clone -q --depth 1 --branch "$V" https://github.com/markusressel/fan2go /tmp/fan2go-src
 cd /tmp/fan2go-src && git log -1 --format='commit %H'
 make build VERSION="$V"

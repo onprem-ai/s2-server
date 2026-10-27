@@ -21,17 +21,30 @@ holds it.
 
 ## Hardware
 
+Read the serial numbers and IDs on the machine where possible (commands below), the
+rest from the box or the part's label. Record the date each was read.
+
 | Part | Model | Serial number |
 |---|---|---|
 | Board | ASUS ProArt X870E-CREATOR WIFI | |
 | CPU | AMD Ryzen 9 9900X | |
 | RAM | 2x 32 GB DDR5 | |
-| GPU 0 (PCIEX16(G5)_1, `01:00.0`) | RTX PRO 6000 Blackwell Server Edition | |
-| GPU 1 (PCIEX16(G5)_2, `03:00.0`) | RTX PRO 6000 Blackwell Server Edition | |
-| NVMe disk 1 (M.2_1, RAID 1) | | |
-| NVMe disk 2 (M.2_3 / M.2_4, RAID 1) | | |
+| GPU 0 (PCIEX16(G5)_1, `01:00.0`) | RTX PRO 6000 Blackwell Server Edition, VBIOS ___, UUID ___ | |
+| GPU 1 (PCIEX16(G5)_2, `03:00.0`) | RTX PRO 6000 Blackwell Server Edition, VBIOS ___, UUID ___ | |
+| NVMe disk 1 (M.2_1, RAID 1) | model, firmware | |
+| NVMe disk 2 (M.2_3 / M.2_4, RAID 1) | model, firmware | |
 | PSU | Seasonic PRIME PX-2200 | |
 | IPMI card (board revision, e.g. R1.04) | ASUS IPMI Expansion Card-SI | |
+
+```sh
+nvidia-smi --query-gpu=index,pci.bus_id,serial,uuid,vbios_version --format=csv
+cat /sys/class/dmi/id/{board_vendor,board_name,board_version,bios_version,bios_date}
+for d in /sys/block/nvme*n1; do echo "$d $(cat $d/device/{model,serial,firmware_rev})"; done
+dmidecode -t 17 | grep -E '^\s(Size|Locator|Part Number|Serial Number):'   # RAM per slot
+```
+
+The board's serial number is not readable on the S2 (its DMI tables carry
+placeholders); take it from the box.
 
 ## Network
 
@@ -83,3 +96,12 @@ Standard: GPU fan A on channel 4, GPU fan B on channel 6
 | Network failover | | |
 | Host checks ([05](05-acceptance.md) section 2) | | |
 | Inventory file attached | | `/root/inventory-YYYYMMDD.txt` |
+
+## Production log
+
+One line per runbook step done on this machine, in order: what, which step, the
+result. It is the record of how this machine was built.
+
+| Date | Step ([03](03-bring-up.md), [04](04-provisioning.md), [05](05-acceptance.md)) | Result |
+|---|---|---|
+| | | |

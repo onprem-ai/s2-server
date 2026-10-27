@@ -62,9 +62,16 @@ and GPU failures are in [06 Operations](06-operations.md).
     login in a second window before reloading `sshd`, and keep the first session open
     until it works.
 
+  `sshd` takes the **first** value it reads, and it reads `sshd_config.d/` in file-name
+  order. If root was given a password and "allow root SSH login" was ticked in the
+  Rocky Linux 10 installer, the installer wrote `01-permitrootlogin.conf` with
+  `PermitRootLogin yes`, which wins over any later file: remove it.
+
   ```sh
   passwd ops                                   # the long password, from the password manager
-  passwd -l root                               # root keeps no usable password
+  usermod -p '!' root                          # root has no password (never passwd -d: that leaves it empty)
+  grep -r PermitRootLogin /etc/ssh/sshd_config.d/   # an installer file saying yes?
+  rm -f /etc/ssh/sshd_config.d/01-permitrootlogin.conf
   echo 'PermitRootLogin no' > /etc/ssh/sshd_config.d/10-no-root.conf
   # optional, key only:
   echo 'PasswordAuthentication no' > /etc/ssh/sshd_config.d/11-key-only.conf

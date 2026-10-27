@@ -10,6 +10,11 @@ for the platform install.
 Run each test with the chassis closed, in its final place. A failure here is a hardware
 question first: reseat, swap, or return the part (see [01 BOM](01-bom.md)).
 
+Order: first the short tests that need a person at the machine (GPU thermal, disks,
+power loss, BMC, network failover, the host checks of section 2), then the long ones
+that run unattended, one after the other in one script: memory (1 to 2 hours), then
+GPU stability (1 hour). Nobody has to wait for them; read the logs afterwards.
+
 | Test | How | Pass |
 |---|---|---|
 | Memory | MemTest86 (USB, through the BMC virtual media) or `memtester` for one full pass, before EXPO is turned on | No errors. Only then EXPO ([03](03-bring-up.md), S2 values) and a second pass |

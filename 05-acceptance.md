@@ -37,6 +37,10 @@ grep -E 'Currently Active Slave|MII Status' /proc/net/bonding/bond0   # two-port
 lsmod | grep -c nouveau                                   # 0
 apt-mark showhold                                         # Ubuntu 24.04: the kernel packages (04 Phase 3)
 dnf versionlock list                                      # Rocky Linux 10: kernel, NVIDIA branch, Docker (04 Phases 3, 5)
+systemctl is-enabled dnf-automatic.timer                  # Rocky Linux 10: enabled (04 Phase 2)
+grep -E '^(upgrade_type|apply_updates|reboot) *=' /etc/dnf/automatic.conf   # Rocky Linux 10: security, yes, never
+apt-config dump APT::Periodic::Unattended-Upgrade         # Ubuntu 24.04: "1" (04 Phase 2)
+apt-config dump Unattended-Upgrade::Package-Blacklist | grep -c nvidia   # Ubuntu 24.04: 1 or more: GPU stack excluded
 getenforce                                                # Rocky Linux 10: Enforcing
 grep DynamicPowerManagement: /proc/driver/nvidia/params   # 0 (04 Phase 3)
 cat /proc/driver/nvidia/version                           # loaded module version ...

@@ -948,20 +948,18 @@ curves:
     linear:
       sensor: gpu0_temp
       steps:
-        - 40: 20%
-        - 55: 45%
-        - 65: 70%
-        - 75: 90%
-        - 82: 100%
+        - 40: 30%
+        - 55: 60%
+        - 65: 85%
+        - 72: 100%
   - id: gpu1_curve
     linear:
       sensor: gpu1_temp
       steps:
-        - 40: 20%
-        - 55: 45%
-        - 65: 70%
-        - 75: 90%
-        - 82: 100%
+        - 40: 30%
+        - 55: 60%
+        - 65: 85%
+        - 72: 100%
   - id: cpu_assist_curve
     linear:
       sensor: cpu_temp
@@ -978,6 +976,12 @@ fans back to the firmware curve, which follows the CPU only, so passive GPUs und
 would lose their airflow whenever fan2go stops. `mode: pwm` keeps the channel in manual mode, so the firmware cannot
 take the speed back, whatever mode the channel had before fan2go started. Full speed
 is loud and safe.
+
+The curve is deliberately steep: full speed from 72 C, well before the GPU's own
+slowdown, at the cost of noise. There is no fan failure detection: when one fan
+stops, the GPUs warm up and the shared curve drives the other fan to full speed. In
+the S2's series duct the stopped fan also blocks part of the air, so a fan failure
+still shows as rising GPU temperature (the alert below), not as a silent loss.
 
 One fan line per fan and one GPU curve per GPU: a machine with one GPU drops `gpu1`.
 
@@ -1013,8 +1017,10 @@ stop fan2go, delete the database and start it again.
 
 The fan curve and the power limit from Phase 3 ("Power limit") are a matched pair. On
 an S2, two GPUs at 500 W each held 76 to 78 C with the fans at 94 percent duty,
-chassis closed. At the stock 600 W the fans have no headroom left. A
-higher limit needs a new load test below.
+chassis closed (measured with the earlier, gentler curve: 90 percent at 75 C, full
+speed at 82 C). With the steeper curve the fans reach full speed from 72 C; check the
+temperatures again in the load test below. At the stock 600 W the fans have no
+headroom left. A higher limit needs a new load test below.
 
 ### Verify under load
 

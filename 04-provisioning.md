@@ -32,14 +32,24 @@ and GPU failures are in [06 Operations](06-operations.md).
   not select Docker or any other snap in the installer. Docker as a snap is not
   supported: its sandbox cannot see `/var/lib/onprem-ai`, where the model weights live.
 - **Rocky Linux 10:** the "Minimal Install" or "Server" environment, without the
-  "Container Management" group (it brings Podman, which Phase 5 removes). Keep SELinux
-  enforcing: the inference node is built and verified for it (Phase 5).
-- User **`ops`**, created in the installer as an administrator (Rocky Linux 10: "Make
-  this user administrator", group `wheel`; Ubuntu 24.04: the installer's user has
-  `sudo`). Every step after the install logs in as `ops` over SSH with a key and works
-  as root with `sudo -i`. Leave root without a password (Rocky Linux 10: root account
-  disabled; Ubuntu 24.04 has none). After the first boot, add the operator's key from
-  the machine that runs the install, then check it:
+  "Container Management" group (it brings Podman, which Phase 5 removes). No desktop
+  ("Server with GUI", "Workstation"): a desktop blanks and locks the screen, and through
+  the remote console every typed command then lands in the lock screen's password
+  field. Keep SELinux enforcing: the inference node is built and verified for it (Phase 5).
+- In the installer, in this order:
+  - **Root account: disabled** (Rocky Linux 10, "Root Account" screen; Ubuntu 24.04 has
+    none). No root password, and never tick "Allow root SSH login with password":
+    that writes `/etc/ssh/sshd_config.d/01-permitrootlogin.conf` with
+    `PermitRootLogin yes`, which overrides later settings (see "SSH access" below).
+  - User **`ops`** as an administrator (Rocky Linux 10: "Make this user
+    administrator", group `wheel`; Ubuntu 24.04: the installer's user has `sudo`), with
+    its final long password from the password manager (see "SSH access" below). `sudo`
+    asks for this same password: there is no separate root password.
+  - The host name `ain-xxxxx` (see below), so the machine never runs as
+    `localhost.localdomain`.
+- Every step after the install logs in as `ops` over SSH with a key and works as root
+  with `sudo -i`. After the first boot, add the operator's key from the machine that
+  runs the install, then check it:
 
   ```sh
   ssh-copy-id -i ~/.ssh/id_ed25519.pub ops@<host address>   # asks once for ops's password
@@ -62,10 +72,10 @@ and GPU failures are in [06 Operations](06-operations.md).
     login in a second window before reloading `sshd`, and keep the first session open
     until it works.
 
+  Installed as above, only the check is needed. To fix a machine installed otherwise:
   `sshd` takes the **first** value it reads, and it reads `sshd_config.d/` in file-name
-  order. If root was given a password and "allow root SSH login" was ticked in the
-  Rocky Linux 10 installer, the installer wrote `01-permitrootlogin.conf` with
-  `PermitRootLogin yes`, which wins over any later file: remove it.
+  order, so the installer's `01-permitrootlogin.conf` wins over any later file: remove
+  it. Removing root's password does not change `ops` or `sudo`.
 
   ```sh
   passwd ops                                   # the long password, from the password manager
@@ -77,6 +87,15 @@ and GPU failures are in [06 Operations](06-operations.md).
   echo 'PasswordAuthentication no' > /etc/ssh/sshd_config.d/11-key-only.conf
   sshd -t && systemctl reload sshd             # syntax check, then apply
   sshd -T | grep -iE '^(permitrootlogin|passwordauthentication) '   # no; yes (default) or no (key only)
+  ```
+
+  Rocky Linux 10 also opens its browser admin console (Cockpit, port 9090, announced in
+  the SSH login banner). Nothing here uses it: turn it off now (also in Phase 7,
+  "Firewall and time"):
+
+  ```sh
+  systemctl disable --now cockpit.socket
+  firewall-cmd --permanent --remove-service=cockpit && firewall-cmd --reload
   ```
 - A static IP address or a DHCP reservation, and a host name that will not change.
   The inference node joins under the machine's host name, and the control plane shows

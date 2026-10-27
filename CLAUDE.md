@@ -1,5 +1,20 @@
 # CLAUDE.md
 
+## Two repositories, one strict split
+
+| | **This repository: s2-server** (generic, read by outsiders) | **server-fleet** (private fleet inventory) |
+|---|---|---|
+| Holds | **How** to build and run **any** S2: steps, settings, rules, pitfalls, the empty record template | Facts about **specific machines**: addresses, host names, serial numbers, GPU UUIDs, versions found, test results, production log |
+| Never | Anything about a specific machine, customer or person | Generic how-to steps |
+
+Rule of thumb for every line you write: *would it still be true for the next S2 we
+build?* Yes: here. No (it names, numbers or describes one machine): the fleet
+repository. A finding on one machine usually needs both: the fact there, and the
+lesson here, written with placeholders.
+
+**No customer data in either repository**: no customer names, contacts, addresses or
+anything a customer told us.
+
 ## This is the generic S2 server repository
 
 This repository describes how to build and set up **any** onprem.ai S2 server: parts,

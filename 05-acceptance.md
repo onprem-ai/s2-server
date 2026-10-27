@@ -10,10 +10,19 @@ for the platform install.
 Run each test with the chassis closed, in its final place. A failure here is a hardware
 question first: reseat, swap, or return the part (see [01 BOM](01-bom.md)).
 
-Order: first the short tests that need a person at the machine (GPU thermal, disks,
-power loss, BMC, network failover, the host checks of section 2), then the long ones
-that run unattended, one after the other in one script: memory (1 to 2 hours), then
-GPU stability (1 hour). Nobody has to wait for them; read the logs afterwards.
+Order:
+
+1. **Attended, short:** GPU thermal (10 minutes), disk health (`smartctl`), power loss,
+   BMC power cycle, network failover, the host checks of section 2. Plus a **short
+   run of every long test**, so it is known to start and pass before nobody watches:
+   `memtester 1G 1` (about a minute), gpu-burn for 60 seconds, the `fio` job on 1 GB.
+2. **Unattended, long**, one after the other in one script with a log per test:
+   memory (one full pass over the free RAM, 1 to 2 hours), disk `fio` write and read
+   on the full job, GPU stability (gpu-burn, 1 hour). Read the logs afterwards; a
+   machine left alone must not be at the console's lock screen or in a `sudo` prompt.
+
+Long tests that fail early in their short run are fixed first: an unattended run that
+dies after one minute costs the whole night.
 
 | Test | How | Pass |
 |---|---|---|

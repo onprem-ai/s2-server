@@ -63,7 +63,21 @@ at boot.
 reboot
 ```
 
-Then every check below must pass before the platform is installed (section 4):
+Then every check below must pass before the platform is installed (section 4). Run
+them with [scripts/host-checks.sh](scripts/host-checks.sh), **as root**: it prints PASS
+or FAIL per check with the value it saw, never waits for input, and exits with the
+number of failures.
+
+```sh
+sudo bash host-checks.sh        # "ALL PASSED", or the FAIL lines to fix
+```
+
+Run as another user, several checks read the wrong state and give false alarms or
+false passes: `dnf` uses that user's own cache and asks to import repository keys that
+root already has, `dmesg`, `sshd -T`, `firewall-cmd` and the Docker socket are refused.
+The script refuses to run without root for that reason.
+
+What it checks, for reference:
 
 ```sh
 cat /proc/cmdline                                         # pcie_aspm=off pcie_port_pm=off iommu=pt
@@ -80,8 +94,8 @@ grep DynamicPowerManagement: /proc/driver/nvidia/params   # 0 (04 Phase 3)
 cat /proc/driver/nvidia/version                           # loaded module version ...
 nvidia-smi --query-gpu=driver_version --format=csv,noheader   # ... equals the userspace version
 nvidia-smi -L                                             # every GPU, by UUID
-nvidia-smi --query-gpu=index,name,persistence_mode,power.limit,pcie.link.gen.max,pcie.link.width.max,pcie.link.width.current,reset_status.reset_required \
-  --format=csv                                            # persistence Enabled, power limit 500 W (04 Phase 3), width as the slot plan says, reset not required
+nvidia-smi --query-gpu=index,name,persistence_mode,power.limit,pcie.link.gen.max,pcie.link.width.max,pcie.link.width.current \
+  --format=csv                                            # persistence Enabled, power limit 500 W (04 Phase 3), width as the slot plan says
 systemctl is-active nvidia-power-limit                   # active (04 Phase 3)
 systemctl is-active fan2go                                # machines with OS-controlled GPU fans (04 Phase 6)
 nvidia-smi topo -m                                        # how the GPUs connect (multi-GPU)

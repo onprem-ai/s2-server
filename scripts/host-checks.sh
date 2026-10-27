@@ -63,7 +63,12 @@ chk "no Xid / IO_PAGE_FAULT / AER this boot" '[ "$E" = 0 ]' "$E lines"
 
 if grep -q '^md' /proc/mdstat; then
   LV=$(awk '/^md/{print $1": "$4}' /proc/mdstat | tr '\n' ' ')
-  chk "RAID level 1" '! grep -E "^md" /proc/mdstat | grep -vq raid1' "$LV"
+  if [ -f /etc/onprem-ai/raid0-compute-only ]; then
+    # options/raid0-compute-only.md: chosen on purpose, marked on the machine.
+    chk "RAID level 0 (compute-only, marked)" '! grep -E "^md" /proc/mdstat | grep -vq raid0' "$LV"
+  else
+    chk "RAID level 1" '! grep -E "^md" /proc/mdstat | grep -vq raid1' "$LV  (RAID 0 on purpose: options/raid0-compute-only.md)"
+  fi
   chk "RAID members all up" '! grep -q "_" <(grep -oE "\[[U_]+\]" /proc/mdstat)' "$(grep -oE '\[[U_]+\]' /proc/mdstat | tr '\n' ' ')"
   chk "no RAID resync running" '! grep -qE "resync|recovery" /proc/mdstat' ""
   # mdadm --monitor exits at once when no array is redundant (RAID 0 only): mdmonitor then

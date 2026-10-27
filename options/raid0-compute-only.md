@@ -57,3 +57,12 @@ a failed disk does not run degraded; the file system fails.
   percentage used) so a disk is replaced before it fails.
 - **[Machine record](../machine-record.md):** note "RAID 0, compute-only", so nobody
   stores data on it that cannot be lost.
+- **On the machine:** mark the choice, so the host checks
+  ([`scripts/host-checks.sh`](../scripts/host-checks.sh)) expect RAID 0 instead of
+  failing on it, and the next administrator sees it:
+
+  ```sh
+  mkdir -p /etc/onprem-ai
+  echo "RAID 0 on purpose: compute-only node, no data that exists only here" \
+    > /etc/onprem-ai/raid0-compute-only
+  ```

@@ -35,12 +35,23 @@ commands), use one shared `tmux` session on the machine
 
 - Ask the person to start it once: `tmux new -A -s work` (as `ops`). They type `sudo`
   and other passwords there; never ask for a password in the conversation.
-- Read the result yourself over SSH with a read-only attach, for a few seconds:
-  `TERM=xterm-256color timeout 3 script -qfc 'tmux attach -r -t work' /dev/null </dev/null`.
-  Not `tmux capture-pane`: it crashes the tmux server shipped with Rocky Linux 10
-  (tmux 3.3a git snapshot) and ends the person's session.
-- Type into it only when agreed, and look at the pane right before typing: a prompt
-  waiting for a password takes your command as the password.
+- You run the commands: type them into the session yourself, so the person only types
+  passwords. Over SSH as the same user (no terminal needed):
+
+  ```sh
+  # 1. look: join read-only for 3 seconds and record what the screen shows
+  ssh <host> "TERM=xterm-256color timeout 3 script -qfc 'tmux attach -r -t work' /dev/null </dev/null" \
+    | sed -e 's/\x1b\[[0-9;?]*[a-zA-Z]//g' -e 's/\x1b[()][0-9A-Z]//g' | tail -c 2000
+  # 2. type: only when step 1 shows a free shell prompt
+  ssh <host> "tmux send-keys -t work '<command> 2>&1 | tee ~/<step>.log' Enter"
+  # 3. look again (step 1): at a [sudo] password prompt, tell the person to type it
+  ```
+
+- Never `tmux capture-pane`: it crashes the tmux server shipped with Rocky Linux 10
+  (tmux 3.3a git snapshot) and ends the person's session. `attach -r` is only the
+  safe way to look; typing goes through `send-keys`.
+- Always look right before typing: a prompt waiting for a password takes your command
+  as the password (a failed `sudo` or a lock screen login attempt).
 - Long steps (upgrades, driver builds, memory tests) run in that session or with
   `tee` to a log file, so a dropped connection loses nothing.
 

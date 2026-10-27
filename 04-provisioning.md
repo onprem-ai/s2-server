@@ -502,10 +502,16 @@ dnf install -y nvidia-fabricmanager          # Rocky Linux 10
 systemctl enable nvidia-fabricmanager
 ```
 
-Secure Boot on (the S2 ships with it on): the module DKMS builds must be signed with a
-key the firmware trusts, or it does not load and `nvidia-smi` reports no device.
-Either turn Secure Boot off in the BIOS ([03 Bring-up](03-bring-up.md), the route used on the S2), or enroll DKMS's key once, from
-the BMC's remote console:
+Secure Boot: **off is the default** ([03 Bring-up](03-bring-up.md), BIOS settings). The
+S2 ships with it on, and with it on the module DKMS builds must be signed with a key
+the firmware trusts, or it does not load and `nvidia-smi` reports no device. Check it
+before the install: `mokutil --sb-state` must say `SecureBoot disabled`.
+
+Optional, only where a policy requires Secure Boot (regulated industries, customer
+security rules): leave it on and enroll DKMS's key once. Someone must watch the console
+at the next boot: the blue MOK manager waits 10 s for a key press, and on the S2 it is
+visible only on a monitor at the board's own HDMI port, not through the IPMI card
+([03](03-bring-up.md), "If you want Secure Boot ON").
 
 - **Ubuntu 24.04:** DKMS asks for a MOK password during the install.
 - **Rocky Linux 10:** `mokutil --import /var/lib/dkms/mok.pub` asks for a one-time

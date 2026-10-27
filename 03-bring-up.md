@@ -143,7 +143,7 @@ a person at the console.
 | Boot mode | UEFI, CSM off (S2 exception: CSM on, see below) | Large-BAR GPUs need it |
 | Above 4G Decoding | Enabled | A 96 GB card needs a BAR window far above 4 GB; without it the machine hangs at POST or the GPU is missing ([260211](learnings/260211-ssh-hang-pcie-gpu-errors.md), "PCIe Resource Allocation Issues") |
 | Resizable BAR | Enabled | Same reason |
-| Secure Boot | Disabled, or plan the MOK enrollment ([04](04-provisioning.md) Phase 3) | The NVIDIA kernel module is built by DKMS on the machine and must be signed with a key the firmware trusts; the enrollment needs the console at the next boot |
+| Secure Boot | **Disabled** (default). On only where a policy requires it (regulated industries, customer security rules): then the MOK enrollment, see "If you want Secure Boot ON" below | The NVIDIA kernel module is built by DKMS on the machine and must be signed with a key the firmware trusts; the enrollment needs someone watching the console at the next boot, which the IPMI card cannot show on this board |
 | SR-IOV | Disabled unless used | Fewer PCIe resources to allocate |
 | PCIe ACS | Disabled for multi-GPU machines without PCIe switches in use by VMs | ACS forces peer-to-peer traffic through the root complex; NCCL's bare-metal guidance is to disable it ([NCCL troubleshooting](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/troubleshooting/gpu_troubleshooting.html)) |
 | PCIe slot speed | Auto; force Gen4 only after Gen5 instability is shown | Some Blackwell builds became stable only at Gen4 ([260526](learnings/260526-gpu-pcie-drop-recovery.md)) |
@@ -291,8 +291,13 @@ Expected: `SecureBoot disabled`, `UEFI`, and, once the driver is installed ([04]
 
 ## If you want Secure Boot ON (MOK route) instead
 
+Optional, only where a policy requires Secure Boot (regulated industries, customer
+security rules). Without such a requirement, leave it off: the default.
+
 Only possible if MokManager is visible: either with a monitor on the board's HDMI (onboard
 graphics enabled, before section 2), or once ASUS provides a BIOS that accepts the card's UEFI video.
+The blue MokManager screen waits 10 s for a key press; missed, the machine boots on
+without the key and the driver does not load (`mokutil --import` again for another try).
 
 1. `sudo mokutil --import /var/lib/dkms/mok.pub` (set a one-time password), keep `--timeout 10`.
 2. Reboot; on the blue screen press a key within 10 s → **Enroll MOK → Continue → Yes →** password → **Reboot**.

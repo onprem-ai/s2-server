@@ -35,7 +35,18 @@ and GPU failures are in [06 Operations](06-operations.md).
   "Container Management" group (it brings Podman, which Phase 5 removes). No desktop
   ("Server with GUI", "Workstation"): a desktop blanks and locks the screen, and through
   the remote console every typed command then lands in the lock screen's password
-  field. Keep SELinux enforcing: the inference node is built and verified for it (Phase 5).
+  field, and it holds RAM the models could use. Keep SELinux enforcing: the inference
+  node is built and verified for it (Phase 5).
+
+  Already installed with a desktop: switch it off, keep the packages. The machine then
+  boots to a text login on the console; SSH is unchanged. The packages only take disk
+  space, and `systemctl isolate graphical.target` brings the desktop back for a while.
+
+  ```sh
+  systemctl set-default multi-user.target    # boot without the desktop from now on
+  systemctl isolate multi-user.target        # stop it now, no reboot
+  systemctl get-default                      # multi-user.target
+  ```
 - In the installer, in this order:
   - **Root account: disabled** (Rocky Linux 10, "Root Account" screen; Ubuntu 24.04 has
     none). No root password, and never tick "Allow root SSH login with password":

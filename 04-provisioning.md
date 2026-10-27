@@ -186,8 +186,9 @@ Install `tmux` and `ipmitool`:
   driver build, memory test) does not die with it. Two people (or a person and an
   assistant) attached to the same session see the same screen: one types the `sudo`
   password, both read the output. Start or rejoin with `tmux new -A -s work`; another
-  login as the same user joins it the same way, or reads it with
-  `tmux capture-pane -p -t work -S -200`.
+  login as the same user joins it the same way, or watches it with `tmux attach -r -t work`
+  (read-only). Avoid `tmux capture-pane` on Rocky Linux 10: its tmux (3.3a git
+  snapshot) crashes on it and the session is lost.
 - `ipmitool` talks to the IPMI card over the network (`-I lanplus`), for power control
   and the card's sensors.
 
@@ -846,7 +847,7 @@ echo "${FAN2GO_SHA256}  /tmp/fan2go" | sha256sum -c -
 install -m 0755 /tmp/fan2go /usr/local/bin/fan2go
 restorecon -v /usr/local/bin/fan2go 2>/dev/null     # SELinux machines: the label systemd may run
 mkdir -p /etc/fan2go /var/lib/fan2go
-fan2go detect                       # lists the hwmon platform and the NVIDIA devices by PCI address
+/usr/local/bin/fan2go detect        # full path: sudo and Rocky root have no /usr/local/bin in PATH; lists the hwmon platform and the NVIDIA devices by PCI address
 ```
 
 Use the `fan2go-linux-amd64` build, not the `-no-nvml` build: the NVML build reads the

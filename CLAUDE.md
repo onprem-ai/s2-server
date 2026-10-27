@@ -35,7 +35,10 @@ commands), use one shared `tmux` session on the machine
 
 - Ask the person to start it once: `tmux new -A -s work` (as `ops`). They type `sudo`
   and other passwords there; never ask for a password in the conversation.
-- Read the result yourself over SSH: `tmux capture-pane -p -t work -S -200`.
+- Read the result yourself over SSH with a read-only attach, for a few seconds:
+  `TERM=xterm-256color timeout 3 script -qfc 'tmux attach -r -t work' /dev/null </dev/null`.
+  Not `tmux capture-pane`: it crashes the tmux server shipped with Rocky Linux 10
+  (tmux 3.3a git snapshot) and ends the person's session.
 - Type into it only when agreed, and look at the pane right before typing: a prompt
   waiting for a password takes your command as the password.
 - Long steps (upgrades, driver builds, memory tests) run in that session or with

@@ -49,6 +49,28 @@ and GPU failures are in [06 Operations](06-operations.md).
   Without password login over SSH, at the console as `ops`: append the public key to
   `~/.ssh/authorized_keys` (directory `700`, file `600`), and on Rocky Linux 10 run
   `restorecon -R ~/.ssh` so SELinux lets `sshd` read it.
+- **SSH access.** Root never logs in over SSH; administrators log in as `ops` and use
+  `sudo -i`.
+
+  - **Default: long password.** `ops` gets a long, unique password (at least 16
+    random characters, kept in the password manager). It is needed for `sudo` and at
+    the console anyway, and it keeps a way in when no key is at hand. Password login
+    over SSH stays on, so anyone on the network can keep guessing that password: a
+    short or reused one is not acceptable.
+  - **Optional: key only.** Turn password login over SSH off when every administrator
+    has a key. The `ops` password is then only for `sudo` and the console. Test a key
+    login in a second window before reloading `sshd`, and keep the first session open
+    until it works.
+
+  ```sh
+  passwd ops                                   # the long password, from the password manager
+  passwd -l root                               # root keeps no usable password
+  echo 'PermitRootLogin no' > /etc/ssh/sshd_config.d/10-no-root.conf
+  # optional, key only:
+  echo 'PasswordAuthentication no' > /etc/ssh/sshd_config.d/11-key-only.conf
+  sshd -t && systemctl reload sshd             # syntax check, then apply
+  sshd -T | grep -iE '^(permitrootlogin|passwordauthentication) '   # no; yes (default) or no (key only)
+  ```
 - A static IP address or a DHCP reservation, and a host name that will not change.
   The inference node joins under the machine's host name, and the control plane shows
   that name on **Servers**; an installer default such as `localhost.localdomain` makes

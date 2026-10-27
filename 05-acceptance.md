@@ -51,6 +51,7 @@ dmesg | grep -iE 'NVRM: Xid|IO_PAGE_FAULT|AER:' | tail    # nothing
 cat /proc/mdstat                                          # every array [UU], no resync running (04 Phase 1)
 systemctl is-active mdmonitor                             # Rocky Linux 10: active, with MAILADDR or PROGRAM set
 ip route | grep default                                   # default route on bond0 only, never the card's USB link (04 Phase 7)
+sshd -T | grep -iE '^(permitrootlogin|passwordauthentication) '   # permitrootlogin no; password login yes or no as chosen (04 Phase 1)
 docker version --format '{{.Server.APIVersion}}'          # 1.44 or later
 docker info --format '{{json .Runtimes}}' | grep -o nvidia
 docker run --rm --gpus all ubuntu:24.04 nvidia-smi -L                # through the nvidia runtime

@@ -720,7 +720,11 @@ fingerprint `060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35`.
 ```sh
 dnf remove -y podman runc
 dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
-dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# Check the key's fingerprint before importing it, so the install runs without a prompt.
+curl -fsSL https://download.docker.com/linux/rhel/gpg -o /tmp/docker.gpg
+gpg --show-keys --with-colons /tmp/docker.gpg | awk -F: '/^fpr/{print $10; exit}' \
+  | grep -qx 060A61C51B558A7F742B77AAC52FEB6B621E9F35 && rpm --import /tmp/docker.gpg
+dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 systemctl enable --now docker
 
 dnf config-manager --add-repo \

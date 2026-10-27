@@ -80,6 +80,23 @@ commands and read every line of output yourself, nothing is lost in copying.
 - Long steps (upgrades, driver builds, memory tests) run in that session or with
   `tee` to a log file, so a dropped connection loses nothing.
 
+## Checking a machine: no false alarms
+
+- Verify with the repository's scripts (`scripts/host-checks.sh`), as root, in the
+  shared session. Never improvise a check list, and never report a check run as
+  another user: as `ops`, `dnf` reads `ops`'s own cache and asks to import repository
+  keys root already has; `dmesg`, `sshd -T`, `firewall-cmd` and the Docker socket are
+  refused. That once produced a false "repository key missing" alarm.
+- What `ops` may read over SSH without `sudo` is for a quick look only (is a service
+  active, a temperature, a log tail). It is not a check result.
+- Before reporting a problem, confirm it the way the system itself sees it (as root,
+  the service's own log, the state the failing component reads). Report it as a
+  problem only then; until then it is "unconfirmed".
+- A check that cannot be run (needs root, needs a cable, needs a person) is reported as
+  "not run", never as passed or failed.
+- When a check gives a wrong result, fix the check (the script and the runbook) in the
+  same session, not only the conclusion.
+
 ## Also keep out
 
 - Internal projects and their names (other repositories, internal tools, internal

@@ -3,7 +3,13 @@
 The runbook's steps as scripts, in order. Copy the folder to the machine and run each
 one **as root** (`sudo bash <script>`) in the shared tmux session
 ([CLAUDE.md](../CLAUDE.md)). Each is safe to run again; each prints what it did and
-stops at the first real problem. Logs go to the home of the user who ran `sudo`.
+stops at the first real problem.
+
+Every script is **self-contained**: it installs or creates everything it uses itself, or,
+when it needs an earlier script's result (the driver, fan2go), stops at once with
+`STOP: ... run <script> first`. It never relies on a manual step or on what happened to
+be on the machine where it was written. Test a changed script on a machine that has
+not seen it, or check each command's prerequisites by reading it. Logs go to the home of the user who ran `sudo`.
 
 Rocky Linux 10 only for now; on Ubuntu 24.04 follow the runbook's Ubuntu blocks.
 

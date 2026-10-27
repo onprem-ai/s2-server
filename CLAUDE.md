@@ -97,6 +97,17 @@ commands and read every line of output yourself, nothing is lost in copying.
 - When a check gives a wrong result, fix the check (the script and the runbook) in the
   same session, not only the conclusion.
 
+## Writing scripts for the runbook
+
+- A script written while working on one machine has hidden help there: packages,
+  directories, images, modules left by earlier steps or by hand. Before it goes into
+  `scripts/`, list every command's prerequisites and make the script install or create
+  each one itself, or stop with `STOP: ... run <script> first`. A fan2go build script
+  once failed on the second machine because `/etc/fan2go` had only been created by hand
+  on the first.
+- Run a new or changed script on a machine that has not run it before, before calling
+  it done.
+
 ## Also keep out
 
 - Internal projects and their names (other repositories, internal tools, internal

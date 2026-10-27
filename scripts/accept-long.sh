@@ -5,6 +5,13 @@ OUT=${LOGDIR:-$(getent passwd "${SUDO_USER:-root}" | cut -d: -f6)}/accept-long-$
 exec > >(tee "$OUT") 2>&1
 ok=0; fail=0
 res() { if [ "$1" = 0 ]; then echo "RESULT $2: PASS $(date '+%F %T')"; ok=$((ok+1)); else echo "RESULT $2: FAIL $(date '+%F %T')"; fail=$((fail+1)); fi; }
+# Self-contained: install everything this script uses (never rely on an earlier script or a manual step).
+dnf install -y -q epel-release >/dev/null && dnf install -y -q memtester fio smartmontools git >/dev/null
+if ! docker image inspect gpu-burn:local >/dev/null 2>&1; then
+  rm -rf /tmp/gpu-burn && git clone -q https://github.com/wilicc/gpu-burn /tmp/gpu-burn
+  docker build -q --build-arg CUDA_VERSION=12.8.1 --build-arg IMAGE_DISTRO=ubuntu24.04 --build-arg COMPUTE=120 \
+    -t gpu-burn:local /tmp/gpu-burn >/dev/null
+fi
 echo "=== $(hostname) start $(date '+%F %T')"
 
 echo; echo "=== Memory: memtester, one full pass"

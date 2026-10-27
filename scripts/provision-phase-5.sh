@@ -2,6 +2,7 @@
 # s2-server 04-provisioning.md Phase 5, Rocky Linux 10: Docker Engine + NVIDIA Container Toolkit
 set -euo pipefail
 log() { echo; echo "=== $*"; }
+command -v nvidia-smi >/dev/null || { echo "STOP: NVIDIA driver missing: run provision-phases-2-4.sh and reboot first"; exit 1; }
 log "Remove Podman (conflicts with Docker)"
 dnf remove -y podman runc || true
 log "Docker CE (key fingerprint must be 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35)"

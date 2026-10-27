@@ -2,6 +2,7 @@
 # GPU load test (05 Acceptance, "GPU thermal"): build gpu-burn for Blackwell (sm_120), 10 min on both GPUs,
 # log temperatures, power, throttle reasons and GPU fan RPM every 10 s.
 set -euo pipefail
+dnf install -y -q git >/dev/null
 MIN=${1:-10}
 rm -rf /tmp/gpu-burn && git clone -q https://github.com/wilicc/gpu-burn /tmp/gpu-burn
 cd /tmp/gpu-burn && git log -1 --format='gpu-burn commit %H'

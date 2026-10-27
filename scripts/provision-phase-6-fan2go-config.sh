@@ -2,6 +2,8 @@
 # s2-server 04 Phase 6: fan2go config and service. Check the platform and device names
 # against `fan2go detect` first (S2 defaults below); fan channels 4 and 6 per the unplug test.
 set -euo pipefail
+[ -x /usr/local/bin/fan2go ] || { echo "STOP: fan2go not installed: run provision-phase-6-fan2go-build.sh first"; exit 1; }
+mkdir -p /etc/fan2go /var/lib/fan2go
 NCT=${NCT:-nct6799-isa-0290}; CPU=${CPU:-k10temp-pci-00c3}
 GPU0=${GPU0:-nvidia-10DE2BB5-0100}; GPU1=${GPU1:-nvidia-10DE2BB5-0300}
 cat > /etc/fan2go/fan2go.yaml <<X

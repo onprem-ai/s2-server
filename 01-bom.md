@@ -21,9 +21,9 @@ machine. [bom.csv](bom.csv) is the same list for ordering.
 | 10 | Fan power adapters | CRJ Electronics 15-Pin SATA to 4-Pin PWM Fan Power Adapter Cable (25 cm, 20 AWG) | 2 | [4063](https://crjelectronics.com/products/4063?variant=40226517155928) (UPC 850028770092) | CRJ Electronics | One per GPU fan: 12 V from the PSU's SATA connector, PWM and tach passed through from the board header ([02](02-assembly.md), "GPU fans") |
 | 11 | PSU | Seasonic PRIME PX-2200 (ATX 3.1, 2200 W, single +12 V rail, fully modular) | 1 | PRIME-PX-2200-ATX30 | TODO | 200 to 240 V input only; two native 12V-2x6 cables; 210 mm long; datasheet and manuals in [`hardware/psu/`](hardware/psu/) |
 | 12 | Power cord | C19 plug (for the PSU's C20 inlet), for the local socket | 1 | TODO | TODO | A C13 cord does not fit the PX-2200 |
-| 13 | BMC | ASUS IPMI Expansion Card-SI (ASPEED AST2600) | 1 | 90MC0AH0-MVUBY0 | TODO | Board revision R1.04. Comes with all its cables: BMC, SPI with adapter, power, reset, two 2-pin adapters, USB 2.0 ([`hardware/ipmi-card/`](hardware/ipmi-card/)) |
+| 13 | Remote KVM | Sipeed NanoKVM-PCIe (open-source KVM over IP on a PCIe bracket; optional WiFi and PoE modules not needed) | 1 | TODO | TODO | Remote screen, keyboard and mouse, virtual USB drive for OS installs, ATX power and reset (9-pin power header). Powered from the PCIe slot only, not a graphics device: video comes from the board's HDMI output. 100 Mbit Ethernet. [Sipeed wiki](https://wiki.sipeed.com/hardware/en/kvm/NanoKVM_PCIe/introduction.html) |
 | 14 | Network | On board: Marvell AQC113 10 GbE, Intel I226-V 2.5 GbE | 0 | | | Both ports cabled, one active-backup bond ([04](04-provisioning.md) Phase 7) |
-| 15 | Network cables | Cat6a for 10 GbE, one more for the BMC | 3 | TODO | TODO | Server (2) and BMC (1) |
+| 15 | Network cables | Cat6a for 10 GbE, one more for the KVM | 3 | TODO | TODO | Server (2) and KVM (1) |
 | 16 | UPS (optional) | 1.5 kW or more, pure sine output | 1 | TODO | TODO | |
 | 17 | GPU fan duct | Custom 3D-printed part in front of both GPUs, holds both GPU fans in series | 1 | STL in [`hardware/gpu-fan-duct/`](hardware/gpu-fan-duct/) (TODO) | Printed in-house | Print in Prusament PETG V0 (UL94 V-0, self-extinguishing), natural or black |
 | 18 | Rear fans | Arctic P8 Max, black (80 mm, PWM, 500 to 5000 rpm, 0.19 A) | 2 | ACFAN00286A | TODO | The chassis's two 80 mm rear positions, behind the CPU, blowing out; on board headers ([`hardware/rear-fans/`](hardware/rear-fans/)) |
@@ -32,6 +32,7 @@ machine. [bom.csv](bom.csv) is the same list for ordering.
 | 21 | Fan grills, 120 mm | 120 mm fan grill (model TODO) | 3 | TODO | TODO | For the three 120 mm front positions |
 | 22 | Fan grills, 80 mm | 80 mm fan grill (model TODO) | 2 | TODO | TODO | For the two 80 mm rear fans (item 18) |
 | 23 | Fire suppression in the chassis (optional) | MAUS Switzerland Handfeuerlöscher Stixx «Pro», fire class ABCF (self-triggering potassium aerosol, 9.8 x 1.8 x 1 cm, 26 g) | 1 | 1350-1 (EAN 7350015530164) | MAUS Switzerland | Triggers by itself at 170 to 180 C, no power needed; leaves no residue on electronics. Protects up to 0.1 m³, the chassis is about 0.035 m³: one is enough. Stick it to the inside of the chassis lid, holes facing down, 2 to 3 cm free in front of them, away from the fan intakes. Replace after 5 years: note the date in the machine record |
+| 24 | BMC (optional, replaces item 13) | ASUS IPMI Expansion Card-SI (ASPEED AST2600) | 1 | 90MC0AH0-MVUBY0 / -MVUBY1 | TODO | Full IPMI/Redfish BMC with its own video. Board revision R1.04, all cables in the box ([`hardware/ipmi-card/`](hardware/ipmi-card/)). On this board without in-band access (needs a special BIOS from ASUS support) |
 
 ## Indicative cost
 
@@ -40,7 +41,7 @@ As of **2026-10-26**, one server, single units, **without VAT**:
 | | CHF | EUR | USD | Share |
 |---|---|---|---|---|
 | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition | ~35,200 | ~33,600 | ~38,000 | **~90 %** |
-| Everything else (board, CPU, 64 GB RAM, disks, chassis, PSU, fans, IPMI card) | ~3,600 | ~3,600 | ~4,200 | ~10 % |
+| Everything else (board, CPU, 64 GB RAM, disks, chassis, PSU, fans, KVM) | ~3,600 | ~3,600 | ~4,200 | ~10 % |
 | **Total** | **~38,800** | **~37,200** | **~42,200** | |
 
 **The point of the S2: about 90 % of the money goes into the GPUs.** The platform around
@@ -64,7 +65,7 @@ Tested with Rocky Linux 10.2 (kernel 6.12) and Ubuntu 24.04 (kernel 6.17).
 | GPUs | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition (`10de:2bb5`, passive, 600 W stock) |
 | Storage | 2x 2 TB WD SN7100 NVMe in one RAID 1 mirror ([RAID 0 option](options/raid0-compute-only.md) for compute-only nodes) |
 | GPU fans | 2x Arctic S12038-8K, each powered by its own SATA power feed from the PSU, PWM and tach on board headers |
-| Out-of-band | ASUS IPMI Expansion Card-SI (ASPEED AST2600) |
+| Out-of-band | ASUS IPMI Expansion Card-SI (ASPEED AST2600); the standard is now the Sipeed NanoKVM-PCIe (item 13), not yet tested |
 | Network | Marvell AQtion AQC113 10 GbE (`atlantic`) and Intel I226-V 2.5 GbE (`igc`), both in one active-backup bond with the 10 GbE port as primary ([04](04-provisioning.md) Phase 7) |
 | PSU | Seasonic PRIME PX-2200 (ATX 3.1, 2200 W, one +12 V rail of 183.3 A); each GPU on its own native 12V-2x6 cable (600 W) |
 
@@ -77,8 +78,15 @@ Tested with Rocky Linux 10.2 (kernel 6.12) and Ubuntu 24.04 (kernel 6.17).
 - **Passive server-edition GPUs:** they rely on chassis airflow. The board's fan curves
   never see GPU temperature, hence the dedicated GPU fans and fan2go
   ([04](04-provisioning.md) Phase 6, [260720](learnings/260720-gpu-fan-hub-alphacool-es-guardian.md)).
-- **The IPMI card:** the only way back into a hung machine or its BIOS without a person
-  at the console ([03](03-bring-up.md)).
+- **Remote KVM, Sipeed NanoKVM-PCIe instead of the ASUS IPMI card:** remote access is
+  the only way back into a hung machine or its BIOS without a person at the console. The
+  ASUS card (item 24) is listed as compatible with the board, but its IPMI function needs
+  a special BIOS that is not published anywhere, ASUS support and developer experience
+  are poor, and its remote console software is hard to automate (switching screens is
+  cumbersome). The NanoKVM is open source with a broad community that keeps its
+  software current, and it integrates natively with MCP for AI agents. What it does not
+  have: its own graphics device, board sensors or Redfish; it captures the board's HDMI
+  output and switches power through the front panel header.
 
 ### Power budget
 

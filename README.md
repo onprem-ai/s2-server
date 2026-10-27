@@ -14,7 +14,7 @@ firmware, the operating system, the NVIDIA driver and the container runtime.
 |---|---|
 | Board, CPU | ASUS ProArt X870E-CREATOR WIFI, AMD Ryzen 9 9900X |
 | GPUs | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition (96 GB, passive) |
-| Out-of-band | ASUS IPMI Expansion Card-SI |
+| Out-of-band | Sipeed NanoKVM-PCIe (open-source KVM); ASUS IPMI Expansion Card-SI as option |
 | OS | Rocky Linux 10 or Ubuntu 24.04 |
 | Indicative cost (2026-10, without VAT) | ~CHF 39,000 / ~EUR 37,000 / ~USD 42,000, **~90 % of it the two GPUs** ([details and disclaimer](01-bom.md#indicative-cost)) |
 

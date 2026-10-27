@@ -11,7 +11,7 @@ item,part,model,qty,part_number,supplier,notes
 10,Fan power adapters,CRJ Electronics 15-Pin SATA to 4-Pin PWM Fan Power Adapter Cable,2,4063 (UPC 850028770092),CRJ Electronics (https://crjelectronics.com/products/4063?variant=40226517155928),one per GPU fan; 12 V from PSU SATA; PWM and tach from the board header
 11,PSU,Seasonic PRIME PX-2200,1,PRIME-PX-2200-ATX30,,200-240 V only
 12,Power cord,C19,1,,,
-13,BMC,ASUS IPMI Expansion Card-SI,1,,,
+13,Remote KVM,Sipeed NanoKVM-PCIe,1,,,open source; HDMI capture + USB HID + virtual USB drive; ATX power via 9-pin header
 15,Network cables,Cat6a,3,,,
 16,UPS (optional),1.5 kW pure sine,1,,,
 17,GPU fan duct,Custom 3D-printed part (both GPU fans in series),1,STL in hardware/gpu-fan-duct/,printed in-house,Prusament PETG V0 (UL94 V-0); natural or black
@@ -21,3 +21,4 @@ item,part,model,qty,part_number,supplier,notes
 21,Fan grills 120 mm,120 mm fan grill (model TODO),3,,,three 120 mm front positions
 22,Fan grills 80 mm,80 mm fan grill (model TODO),2,,,two 80 mm rear fans
 23,Fire suppression (optional),MAUS Switzerland Handfeuerlöscher Stixx «Pro» fire class ABCF,1,1350-1,MAUS Switzerland,self-triggering aerosol 170-180 C; up to 0.1 m3; inside chassis lid holes down; replace after 5 years
+24,BMC (optional; replaces 13),ASUS IPMI Expansion Card-SI,1,90MC0AH0-MVUBY0,,full BMC; in-band needs special ASUS BIOS

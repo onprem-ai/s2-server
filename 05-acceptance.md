@@ -14,11 +14,31 @@ question first: reseat, swap, or return the part (see [01 BOM](01-bom.md)).
 |---|---|---|
 | Memory | MemTest86 (USB, through the BMC virtual media) or `memtester` for one full pass, before EXPO is turned on | No errors. Only then EXPO ([03](03-bring-up.md), S2 values) and a second pass |
 | GPU thermal | Both GPUs at full load for 10 minutes ([04](04-provisioning.md) Phase 6, "Verify under load") | Below 80 C, no thermal slowdown, fans ramp up and back down; `systemctl stop fan2go` sends both fans to full speed |
-| GPU stability | A GPU burn container on both GPUs for 1 hour (TODO: name the image and command used) | No Xid in `dmesg`, both GPUs still listed, no `AER:` lines |
+| GPU stability | The GPU burn container below on both GPUs for 1 hour | No Xid in `dmesg`, both GPUs still listed, no `AER:` lines |
 | Disks | `smartctl -a /dev/nvme0` and `/dev/nvme1`; a `fio` write and read pass on the mirror (TODO: exact job) | No media errors on either disk; the mirror fully synced (`/proc/mdstat` all `[UU]`) before the test |
 | Power loss | Pull the power cord while idle, plug it back in | The machine powers on by itself (BIOS "Restore AC power loss") and comes back with both GPUs |
 | BMC | Power cycle through the BMC (`ipmitool ... chassis power cycle`), remote console during POST | The machine comes back; POST visible on the remote console |
 | Network failover | Pull each cable in turn during a ping ([04](04-provisioning.md) Phase 7) | At most a packet or two lost |
+
+### GPU load: gpu-burn
+
+[gpu-burn](https://github.com/wilicc/gpu-burn) loads every GPU with matrix
+multiplications and checks the results. Build it for the GPU's architecture
+(Blackwell RTX PRO: compute capability 12.0, `COMPUTE=120`, CUDA 12.8 or later); the
+default build (7.5) does not run on Blackwell.
+
+```sh
+git clone https://github.com/wilicc/gpu-burn /tmp/gpu-burn && cd /tmp/gpu-burn
+docker build --build-arg CUDA_VERSION=12.8.1 --build-arg IMAGE_DISTRO=ubuntu24.04 \
+  --build-arg COMPUTE=120 -t gpu-burn:local .
+# --entrypoint: the NVIDIA base image's entrypoint script passes the arguments to
+# `exec`, which takes -tc as its own option ("exec: -t: invalid option").
+docker run --rm --gpus all --entrypoint /app/gpu_burn gpu-burn:local -tc 600    # 10 min; 3600 for 1 h
+```
+
+`-tc` uses the tensor cores, the load inference puts on the GPU. Watch temperatures and
+fans in a second shell with the loop from [04](04-provisioning.md) Phase 6, "Verify under
+load". gpu-burn ends with `OK` or `FAULTY` per GPU; `FAULTY` fails the test.
 
 ## 2. Reboot and verify the host
 

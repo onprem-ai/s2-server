@@ -466,19 +466,19 @@ dnf config-manager --add-repo \
   https://developer.download.nvidia.com/compute/cuda/repos/rhel10/x86_64/cuda-rhel10.repo
 dnf clean expire-cache
 
-cat >> /etc/dnf/plugins/versionlock.list <<EOF
-kmod-nvidia-open*3:${BRANCH}*
-libnvidia*3:${BRANCH}*
-nvidia-driver*3:${BRANCH}*
-nvidia-kmod-common-3:${BRANCH}*
-nvidia-modprobe-3:${BRANCH}*
-nvidia-open-3:${BRANCH}*
-nvidia-persistenced-3:${BRANCH}*
-EOF
+# One line per package: dnf 4's versionlock cannot parse a * inside the package name
+# ("could not parse pattern: libnvidia*3:595*"); such a line locks nothing, and dnf
+# then picks the newest branch.
+for p in kmod-nvidia-open-dkms nvidia-kmod-common nvidia-modprobe nvidia-open \
+         nvidia-persistenced nvidia-driver nvidia-driver-libs nvidia-driver-cuda \
+         nvidia-driver-cuda-libs libnvidia-cfg libnvidia-fbc libnvidia-gpucomp libnvidia-ml; do
+  echo "${p}-3:${BRANCH}*" >> /etc/dnf/plugins/versionlock.list
+done
 
 # Compute-only, open kernel modules: no X, GL or Vulkan userspace.
 dnf install -y nvidia-driver-cuda kmod-nvidia-open-dkms
 command -v nvidia-smi nvidia-persistenced      # both answer
+rpm -q nvidia-driver-cuda kmod-nvidia-open-dkms   # both on the branch, epoch 3
 ```
 
 `nvidia-driver-cuda` holds `nvidia-smi` and needs `nvidia-persistenced`;

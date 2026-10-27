@@ -76,7 +76,10 @@ commands and read every line of output yourself, nothing is lost in copying.
   as the password (a failed `sudo` or a lock screen login attempt).
 - When a `[sudo] password` prompt appears, tell the person at once: `sudo` gives up
   after 5 minutes ("timed out reading password") and the command must be typed again.
-  Put all root steps of a phase in one script, so one password covers them.
+- Run the runbook scripts only through `bash ~/s2-scripts/run.sh <step> ...`: one
+  password for all steps, absolute paths, one log per step, one summary. Never chain
+  steps yourself with `&&` (a timed-out password skips the rest) or `sudo bash -c`
+  (`~` becomes root's home).
 - Long steps (upgrades, driver builds, memory tests) run in that session or with
   `tee` to a log file, so a dropped connection loses nothing.
 

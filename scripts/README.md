@@ -1,8 +1,21 @@
 # Scripts
 
-The runbook's steps as scripts, in order. Copy the folder to the machine and run each
-one **as root** (`sudo bash <script>`) in the shared tmux session
-([CLAUDE.md](../CLAUDE.md)). Each is safe to run again; each prints what it did and
+The runbook's steps as scripts, in order. Copy the folder to the machine
+(`~/s2-scripts/`) and run them through **`run.sh`**, as the admin user, in the shared
+tmux session ([CLAUDE.md](../CLAUDE.md)):
+
+```sh
+bash ~/s2-scripts/run.sh phases-2-4                               # then reboot
+bash ~/s2-scripts/run.sh phase-5 fan2go-build                     # then the fan unplug test
+bash ~/s2-scripts/run.sh fan2go-config host-checks gpu-thermal accept-short
+bash ~/s2-scripts/run.sh accept-long                              # unattended, hours
+```
+
+`run.sh` asks for the `sudo` password **once** and keeps `sudo` alive for every step
+of the call (no 5-minute timeout between them), runs each step as root with absolute
+paths, writes one log per step to `~/s2-logs/`, carries on after a failed step and
+ends with one summary. Do not call the scripts with `sudo bash -c "..."` yourself:
+inside it `~` is root's home and the scripts are not found. Each is safe to run again; each prints what it did and
 stops at the first real problem.
 
 Every script is **self-contained**: it installs or creates everything it uses itself, or,

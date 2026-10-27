@@ -841,6 +841,8 @@ machine's record.
 
 ### Install fan2go
 
+**Ubuntu 24.04:** the release binary.
+
 ```sh
 FAN2GO_VERSION=0.15.0
 FAN2GO_SHA256=3695af6c3e6147d7b8401e94f3991fc1cd144c7e18b26e3ce526b574d17abe93
@@ -848,15 +850,38 @@ curl -fsSLo /tmp/fan2go \
   https://github.com/markusressel/fan2go/releases/download/${FAN2GO_VERSION}/fan2go-linux-amd64
 echo "${FAN2GO_SHA256}  /tmp/fan2go" | sha256sum -c -
 install -m 0755 /tmp/fan2go /usr/local/bin/fan2go
-restorecon -v /usr/local/bin/fan2go 2>/dev/null     # SELinux machines: the label systemd may run
-mkdir -p /etc/fan2go /var/lib/fan2go
-/usr/local/bin/fan2go detect        # full path: sudo and Rocky root have no /usr/local/bin in PATH; lists the hwmon platform and the NVIDIA devices by PCI address
 ```
 
-Use the `fan2go-linux-amd64` build, not the `-no-nvml` build: the NVML build reads the
-GPU temperatures itself. The digest above is the one GitHub publishes for the 0.15.0 release asset
-(checked by download). A newer release is a deliberate change ([06](06-operations.md)),
-not a download of "latest".
+**Rocky Linux 10:** build it from the release's source. The release binary is linked
+against `libsensors.so.5`; Rocky Linux 10 ships `libsensors.so.4` (`lm_sensors` 3.6),
+and the binary does not start (`error while loading shared libraries:
+libsensors.so.5`). The build uses the distribution's Go and `lm_sensors-devel` and
+takes about two minutes.
+
+```sh
+FAN2GO_VERSION=0.15.0
+dnf install -y golang lm_sensors-devel make git
+rm -rf /tmp/fan2go-src
+git clone -q --depth 1 --branch ${FAN2GO_VERSION} https://github.com/markusressel/fan2go /tmp/fan2go-src
+make -C /tmp/fan2go-src build VERSION=${FAN2GO_VERSION}
+install -m 0755 /tmp/fan2go-src/bin/fan2go /usr/local/bin/fan2go
+ldd /usr/local/bin/fan2go | grep sensors       # libsensors.so.4 => /lib64/...
+```
+
+Both:
+
+```sh
+restorecon -v /usr/local/bin/fan2go 2>/dev/null     # SELinux machines: the label systemd may run
+mkdir -p /etc/fan2go /var/lib/fan2go
+/usr/local/bin/fan2go version
+/usr/local/bin/fan2go detect        # lists the hwmon platform and the NVIDIA devices by PCI address
+```
+
+Call it by its full path: `sudo` and a Rocky Linux root shell have no `/usr/local/bin`
+in `PATH`. Use the build with NVML (`fan2go-linux-amd64`, or `make build`), not the
+`-no-nvml` one: it reads the GPU temperatures itself. The digest above is the one
+GitHub publishes for the 0.15.0 release asset (checked by download). A newer release
+is a deliberate change ([06](06-operations.md)), not a download of "latest".
 
 ### Configure
 

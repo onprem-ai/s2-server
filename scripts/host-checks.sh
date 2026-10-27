@@ -66,7 +66,13 @@ if grep -q '^md' /proc/mdstat; then
   chk "RAID level 1" '! grep -E "^md" /proc/mdstat | grep -vq raid1' "$LV"
   chk "RAID members all up" '! grep -q "_" <(grep -oE "\[[U_]+\]" /proc/mdstat)' "$(grep -oE '\[[U_]+\]' /proc/mdstat | tr '\n' ' ')"
   chk "no RAID resync running" '! grep -qE "resync|recovery" /proc/mdstat' ""
-  chk "mdmonitor running" '[ "$(systemctl is-active mdmonitor)" = active ]' "$(systemctl is-active mdmonitor)"
+  # mdadm --monitor exits at once when no array is redundant (RAID 0 only): mdmonitor then
+  # "fails" with "Can't open PID file". That is a consequence of RAID 0, not a separate fault.
+  if grep -E "^md" /proc/mdstat | grep -qE "raid(1|4|5|6|10)"; then
+    chk "mdmonitor running" '[ "$(systemctl is-active mdmonitor)" = active ]' "$(systemctl is-active mdmonitor)"
+  else
+    info "mdmonitor" "nothing to monitor: no redundant array (see RAID level)"
+  fi
   chk "mdadm reports somewhere" 'grep -qE "^(MAILADDR|PROGRAM)" /etc/mdadm.conf /etc/mdadm/mdadm.conf 2>/dev/null' ""
 fi
 

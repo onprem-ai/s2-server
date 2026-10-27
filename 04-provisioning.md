@@ -195,6 +195,9 @@ Install `tmux` and `ipmitool`:
 ```sh
 dnf install -y tmux ipmitool                     # Rocky Linux 10
 apt-get install -y tmux ipmitool                 # Ubuntu 24.04
+# as ops: scroll with the mouse wheel, keep a long history
+printf 'set -g mouse on\nset -g history-limit 50000\n' > /home/ops/.tmux.conf
+chown ops: /home/ops/.tmux.conf
 ```
 
 On the public BIOS, `ipmitool` on the host cannot reach the card directly: the card's

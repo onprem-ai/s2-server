@@ -37,6 +37,11 @@ commands and read every line of output yourself, nothing is lost in copying.
 
 - Ask the person to start it once: `tmux new -A -s work` (as `ops`). They type `sudo`
   and other passwords there; never ask for a password in the conversation.
+- Before that, switch on scrolling with the mouse wheel and a long history, so the
+  person can scroll back through the output:
+  `printf 'set -g mouse on\nset -g history-limit 50000\n' > ~/.tmux.conf`
+  (a running session takes it with `tmux source-file ~/.tmux.conf`). With the mouse on,
+  text is selected with Shift held down.
 - You run the commands: type them into the session yourself, so the person only types
   passwords. Over SSH as the same user (no terminal needed):
 

@@ -37,6 +37,11 @@ step 5. At handoff the customer gets an
 [acceptance certificate](acceptance-certificate.md): every check passed, who
 performed it, when.
 
+## Scripts
+
+[scripts/](scripts/README.md): the Rocky Linux 10 steps of 04 and 05 as root scripts,
+in order, for the shared tmux session.
+
 ## Other folders
 
 - `learnings/`: the incident notes the docs cite as evidence.

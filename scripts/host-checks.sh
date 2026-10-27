@@ -4,8 +4,9 @@
 # Never interactive: package manager calls use -q and --assumeno / -C (cache only).
 [ "$(id -u)" = 0 ] || { echo "Run as root (sudo): several checks read root-only state; as another user they give false results."; exit 99; }
 fail=0
+FAILS=/tmp/host-checks-fails.$$; : > "$FAILS"; trap 'rm -f "$FAILS"' EXIT
 pass() { printf 'PASS  %-34s %s\n' "$1" "$2"; }
-bad()  { printf 'FAIL  %-34s %s\n' "$1" "$2"; fail=$((fail+1)); }
+bad()  { printf 'FAIL  %-34s %s\n' "$1" "$2" | tee -a "$FAILS"; fail=$((fail+1)); }
 info() { printf 'INFO  %-34s %s\n' "$1" "$2"; }
 chk()  { if eval "$2"; then pass "$1" "$3"; else bad "$1" "$3"; fi; }
 . /etc/os-release
@@ -19,7 +20,7 @@ if [ -r /proc/net/bonding/bond0 ]; then
   ACT=$(awk -F': ' '/Currently Active Slave/{print $2}' /proc/net/bonding/bond0)
   chk "bond0 active port" '[ -n "$ACT" ] && [ "$ACT" != None ]' "$ACT"
   awk -F': ' '/Slave Interface/{i=$2} /MII Status/ && i{print i, $2; i=""}' /proc/net/bonding/bond0 | while read -r p s; do
-    if [ "$s" = up ]; then pass "bond member $p" "up"; else printf 'FAIL  %-34s %s\n' "bond member $p" "$s (no link: cable or switch port; no redundancy)"; fi
+    if [ "$s" = up ]; then pass "bond member $p" "up"; else printf 'FAIL  %-34s %s\n' "bond member $p" "$s (no link: cable or switch port; no redundancy)" | tee -a "$FAILS"; fi
   done
   fail=$((fail + $(awk -F': ' '/Slave Interface/{i=1} /MII Status/ && i{if($2!="up")n++; i=0} END{print n+0}' /proc/net/bonding/bond0)))
 else info "bond0" "none (one-port machine)"; fi
@@ -50,7 +51,7 @@ NG=$(lspci -d 10de: | grep -cE '3D|VGA'); NS=$(nvidia-smi -L | grep -c '^GPU')
 chk "every GPU seen by the driver" '[ "$NG" -ge 1 ] && [ "$NG" = "$NS" ]' "PCI $NG, driver $NS"
 nvidia-smi --query-gpu=index,persistence_mode,power.limit,pcie.link.gen.max,pcie.link.width.current --format=csv,noheader,nounits |
 while IFS=', ' read -r i pm pl gen w; do
-  printf '%s  %-34s %s\n' "$([ "$pm" = Enabled ] && [ "${pl%.*}" = 500 ] && echo PASS || echo FAIL)" "GPU $i persistence, 500 W" "$pm, $pl W"
+  printf '%s  %-34s %s\n' "$([ "$pm" = Enabled ] && [ "${pl%.*}" = 500 ] && echo PASS || echo FAIL)" "GPU $i persistence, 500 W" "$pm, $pl W" | tee >(grep '^FAIL' >> "$FAILS")
   info "GPU $i PCIe" "Gen$gen x$w"
 done
 fail=$((fail + $(nvidia-smi --query-gpu=persistence_mode,power.limit --format=csv,noheader,nounits | awk -F', ' '$1!="Enabled"||int($2)!=500{n++} END{print n+0}')))
@@ -97,5 +98,6 @@ chk "Docker nvidia runtime" 'docker info --format "{{json .Runtimes}}" | grep -q
 chk "GPUs in a container (runtime)" '[ "$(docker run --rm --gpus all ubuntu:24.04 nvidia-smi -L 2>/dev/null | grep -c ^GPU)" = "$NS" ]' ""
 chk "GPUs in a container (CDI)" '[ "$(docker run --rm --device nvidia.com/gpu=all ubuntu:24.04 nvidia-smi -L 2>/dev/null | grep -c ^GPU)" = "$NS" ]' ""
 
-echo; [ $fail = 0 ] && echo "ALL PASSED" || echo "$fail FAILED"
+echo
+if [ $fail = 0 ]; then echo "ALL PASSED"; else echo "$fail FAILED:"; sort -u "$FAILS"; fi
 exit $fail

@@ -178,14 +178,22 @@ and GPU failures are in [06 Operations](06-operations.md).
 - Swap: keep what the installer creates (Rocky Linux 10: a swap volume sized from the
   RAM; Ubuntu 24.04: a swap file). Check after the first boot with `swapon --show`.
 
-### IPMI card tools
+### Admin tools
 
-Install `ipmitool`: it talks to the IPMI card over the network (`-I lanplus`), for
-power control and the card's sensors.
+Install `tmux` and `ipmitool`:
+
+- `tmux` keeps a shell running when the SSH connection drops, so a long step (upgrade,
+  driver build, memory test) does not die with it. Two people (or a person and an
+  assistant) attached to the same session see the same screen: one types the `sudo`
+  password, both read the output. Start or rejoin with `tmux new -A -s work`; another
+  login as the same user joins it the same way, or reads it with
+  `tmux capture-pane -p -t work -S -200`.
+- `ipmitool` talks to the IPMI card over the network (`-I lanplus`), for power control
+  and the card's sensors.
 
 ```sh
-dnf install -y ipmitool                          # Rocky Linux 10
-apt-get install -y ipmitool                      # Ubuntu 24.04
+dnf install -y tmux ipmitool                     # Rocky Linux 10
+apt-get install -y tmux ipmitool                 # Ubuntu 24.04
 ```
 
 On the public BIOS, `ipmitool` on the host cannot reach the card directly: the card's

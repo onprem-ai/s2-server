@@ -80,6 +80,9 @@ commands and read every line of output yourself, nothing is lost in copying.
   password for all steps, absolute paths, one log per step, one summary. Never chain
   steps yourself with `&&` (a timed-out password skips the rest) or `sudo bash -c`
   (`~` becomes root's home).
+- Never type ad-hoc root one-liners with nested quotes into the session: they break
+  in `send-keys` quoting. A root action that is needed belongs in a script under
+  `scripts/` and a `run.sh` step.
 - Long steps (upgrades, driver builds, memory tests) run in that session or with
   `tee` to a log file, so a dropped connection loses nothing.
 

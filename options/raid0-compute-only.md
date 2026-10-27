@@ -62,7 +62,5 @@ a failed disk does not run degraded; the file system fails.
   failing on it, and the next administrator sees it:
 
   ```sh
-  mkdir -p /etc/onprem-ai
-  echo "RAID 0 on purpose: compute-only node, no data that exists only here" \
-    > /etc/onprem-ai/raid0-compute-only
+  bash ~/s2-scripts/run.sh mark-raid0-compute-only
   ```

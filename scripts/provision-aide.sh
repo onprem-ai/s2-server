@@ -1,36 +1,54 @@
 #!/bin/bash
-# 04 Phase 7, "File integrity (AIDE)": AIDE on the distribution's default rules (system
-# files), minus the data that changes all the time; a nightly check; one report per night
-# under /var/log/aide/, the last 90 days kept. Safe to run again (keeps the baseline).
+# 04 Phase 7, "File integrity (AIDE)": AIDE watches an explicit list of system paths only
+# (include list, nothing else: a new data directory never needs a change here); a nightly
+# check; one report per night under /var/log/aide/, the last 365 days kept.
+# Safe to run again: a changed watch list makes a new baseline, otherwise it is kept.
 set -euo pipefail
-KEEP_DAYS=${KEEP_DAYS:-90}
+KEEP_DAYS=${KEEP_DAYS:-365}
 dnf install -y aide
 
-# Exclusions: data that changes by design. Not /etc, /usr, /boot: those are the point.
-# Appended to /etc/aide.conf in one marked block (works with every AIDE version; replaced on re-run).
-sed -i '/^# BEGIN onprem-ai/,/^# END onprem-ai/d' /etc/aide.conf
-cat >> /etc/aide.conf <<'X'
-# BEGIN onprem-ai: data that changes by design (s2-server 04 Phase 7, AIDE)
-!/var/lib/onprem-ai/
-!/var/lib/docker/
-!/var/lib/containerd/
-!/srv/docker/
-!/var/lib/fan2go/
-!/var/cache/
-!/var/tmp/
-!/var/lib/dnf/
-!/var/lib/rpm/
-!/var/lib/dkms/
-!/var/lib/nvidia-persistenced/
-!/home/
-!/root/
-# END onprem-ai
+# Our own configuration replaces the distribution's: only these system paths are watched.
+# Data (model weights, Docker, caches, logs, homes) is never listed, wherever it lives.
+[ -f /etc/aide.conf.dist ] || cp -a /etc/aide.conf /etc/aide.conf.dist
+NEWCONF=$(mktemp)
+cat > "$NEWCONF" <<'X'
+# onprem.ai S2: AIDE watches system files only (s2-server 04 Phase 7, AIDE).
+# Include list: anything not listed here is not watched. Keep data out of these paths.
+database_in=file:/var/lib/aide/aide.db.gz
+database_out=file:/var/lib/aide/aide.db.new.gz
+gzip_dbout=yes
+log_level=warning
+report_level=changed_attributes
+report_url=stdout
+
+SYS = p+i+n+u+g+s+m+c+acl+selinux+xattrs+sha512
+DIR = p+i+n+u+g+acl+selinux+xattrs
+
+/boot           SYS
+/etc            SYS
+/usr            SYS
+/opt            SYS
+/root/\.ssh     SYS
+/root/\.bashrc$ SYS
+/root/\.bash_profile$ SYS
+/var/spool/cron SYS
+/var/lib/aide$  DIR
+
+# Inside the watched paths: files that change by design.
+!/etc/mtab$
+!/etc/.*~$
+!/etc/adjtime$
+!/etc/aide\.conf\.dist$
+!/boot/grub2/grubenv$
+!/usr/src/kernels/.*/\.cache
 X
+CHANGED=1; cmp -s "$NEWCONF" /etc/aide.conf && CHANGED=0
+install -m 0600 "$NEWCONF" /etc/aide.conf; rm -f "$NEWCONF"
 aide --config-check
 
 # Baseline: once. A changed system after a planned update gets a new baseline with
 # `aide-accept` (below), never automatically.
-if [ ! -f /var/lib/aide/aide.db.gz ]; then
+if [ ! -f /var/lib/aide/aide.db.gz ] || [ "$CHANGED" = 1 ]; then
   echo "=== creating the baseline (a few minutes)"
   aide --init >/dev/null
   mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz

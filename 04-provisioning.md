@@ -1289,11 +1289,14 @@ intrusion or tampering that no virus signature knows. An antivirus (ClamAV) is n
 used: nobody brings files onto these machines, and the models come as images from
 known sources.
 
-- **Scope:** the distribution's default rules (`/etc`, `/usr`, `/boot`, ...), minus
-  the data that changes by design: model weights, Docker and containerd, caches, the
-  package database, home directories. Otherwise every model download fills the report.
+- **Scope: an include list of system paths only** (`/boot`, `/etc`, `/usr`, `/opt`,
+  root's SSH and shell files, cron). Our configuration replaces the distribution's
+  (kept as `/etc/aide.conf.dist`). Nothing else is watched, so a model weights
+  directory, Docker's data root or a new data disk anywhere never needs a change here,
+  and never fills the report. Keep data out of the listed paths.
 - **Nightly check** at 04:30 with low priority; **one report per night** in
-  `/var/log/aide/aide-<date>.log` (root only), reports older than **90 days** removed.
+  `/var/log/aide/aide-<date>.log` (root only), reports older than **365 days** removed
+  (about 2 KB each; an intrusion is often found months later).
   A finding also goes to the system log (`journalctl -t aide`).
 - **After a planned change** (updates, a configuration change): read the latest report,
   then accept the state as the new baseline with `aide-accept` (keeps the previous one

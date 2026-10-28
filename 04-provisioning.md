@@ -305,6 +305,8 @@ limit it to security updates:
 ```sh
 dnf install -y dnf-plugins-core python3-dnf-plugin-versionlock
 dnf -y upgrade --refresh                         # current once, before anything is locked
+# A machine whose NVIDIA driver is already installed: lock the branch first (Phase 3,
+# "Install"), or this upgrade moves the driver to the newest branch.
 
 dnf install -y dnf-automatic
 sed -i -e 's/^upgrade_type *=.*/upgrade_type = security/' \

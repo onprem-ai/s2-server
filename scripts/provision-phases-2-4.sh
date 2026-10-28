@@ -8,6 +8,17 @@ log() { echo; echo "=== $*"; }
 
 log "Phase 2: bring the system current, security updates daily"
 dnf install -y dnf-plugins-core python3-dnf-plugin-versionlock
+# Lock the NVIDIA branch BEFORE any upgrade: on a machine whose driver is already
+# installed but not locked, the upgrade below would otherwise move it to the newest branch.
+# dnf 4's versionlock cannot parse a * inside the package name: one line per package.
+sed -i "/3:${BRANCH}\*/d" /etc/dnf/plugins/versionlock.list 2>/dev/null || true
+for p in kmod-nvidia-open-dkms nvidia-kmod-common nvidia-modprobe nvidia-open \
+         nvidia-persistenced nvidia-driver nvidia-driver-libs nvidia-driver-cuda \
+         nvidia-driver-cuda-libs libnvidia-cfg libnvidia-fbc libnvidia-gpucomp libnvidia-ml; do
+  grep -qxF "${p}-3:${BRANCH}*" /etc/dnf/plugins/versionlock.list 2>/dev/null || \
+    echo "${p}-3:${BRANCH}*" >> /etc/dnf/plugins/versionlock.list
+done
+cat /etc/dnf/plugins/versionlock.list
 dnf -y upgrade --refresh
 dnf install -y dnf-automatic
 sed -i -e 's/^upgrade_type *=.*/upgrade_type = security/' \
@@ -60,14 +71,6 @@ log "Phase 3: NVIDIA repository, branch $BRANCH locked, driver"
 dnf config-manager --add-repo \
   https://developer.download.nvidia.com/compute/cuda/repos/rhel10/x86_64/cuda-rhel10.repo
 dnf clean expire-cache
-# dnf 4's versionlock cannot parse a * inside the package name: one line per package.
-sed -i "/3:${BRANCH}\*/d" /etc/dnf/plugins/versionlock.list 2>/dev/null || true
-for p in kmod-nvidia-open-dkms nvidia-kmod-common nvidia-modprobe nvidia-open \
-         nvidia-persistenced nvidia-driver nvidia-driver-libs nvidia-driver-cuda \
-         nvidia-driver-cuda-libs libnvidia-cfg libnvidia-fbc libnvidia-gpucomp libnvidia-ml; do
-  echo "${p}-3:${BRANCH}*" >> /etc/dnf/plugins/versionlock.list
-done
-cat /etc/dnf/plugins/versionlock.list
 dnf install -y nvidia-driver-cuda kmod-nvidia-open-dkms
 command -v nvidia-smi nvidia-persistenced
 for p in nvidia-driver-cuda kmod-nvidia-open-dkms; do
@@ -76,7 +79,7 @@ for p in nvidia-driver-cuda kmod-nvidia-open-dkms; do
 done
 dracut -f --regenerate-all
 dkms status | grep -i nvidia
-dnf versionlock add kernel kernel-core kernel-modules kernel-modules-core \
+dnf versionlock list 2>/dev/null | grep -q '^kernel-core-' || dnf versionlock add kernel kernel-core kernel-modules kernel-modules-core \
   kernel-modules-extra kernel-devel kernel-devel-matched kernel-headers
 dnf versionlock list
 

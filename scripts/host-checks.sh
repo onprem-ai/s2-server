@@ -101,6 +101,12 @@ fi
 chk "sshd: no root login" '[ "$(sshd -T | awk "/^permitrootlogin /{print \$2}")" = no ]' "$(sshd -T | awk '/^permitrootlogin /{print $2}')"
 info "sshd: password login" "$(sshd -T | awk '/^passwordauthentication /{print $2}')"
 chk "root has no password" '[[ "$(getent shadow root | cut -d: -f2)" == "!"* || "$(getent shadow root | cut -d: -f2)" == "*"* ]]' ""
+if command -v aide >/dev/null; then
+  chk "AIDE baseline present" '[ -f /var/lib/aide/aide.db.gz ]' ""
+  chk "AIDE nightly check enabled" '[ "$(systemctl is-enabled aide-check.timer 2>/dev/null)" = enabled ]' ""
+else
+  bad "AIDE installed" "no (run.sh aide, 04 Phase 7)"
+fi
 chk "clock synchronized" '[ "$(timedatectl show -p NTPSynchronized --value)" = yes ]' ""
 if [ $ROCKY = 1 ]; then info "firewall services" "$(firewall-cmd --list-services)"; else info "firewall" "$(ufw status | head -1)"; fi
 info "Cockpit" "$(systemctl is-active cockpit.socket 2>/dev/null)"

@@ -1280,3 +1280,36 @@ firewall-cmd --permanent --remove-service=cockpit
 firewall-cmd --permanent --add-service=ssh   # plus --add-port=443/tcp --add-port=3443/tcp on a control-plane machine
 firewall-cmd --reload
 ```
+
+### File integrity (AIDE)
+
+[AIDE](https://aide.github.io/) records the checksums of the system files once (the
+baseline) and reports every file added, removed or changed since. It catches an
+intrusion or tampering that no virus signature knows. An antivirus (ClamAV) is not
+used: nobody brings files onto these machines, and the models come as images from
+known sources.
+
+- **Scope:** the distribution's default rules (`/etc`, `/usr`, `/boot`, ...), minus
+  the data that changes by design: model weights, Docker and containerd, caches, the
+  package database, home directories. Otherwise every model download fills the report.
+- **Nightly check** at 04:30 with low priority; **one report per night** in
+  `/var/log/aide/aide-<date>.log` (root only), reports older than **90 days** removed.
+  A finding also goes to the system log (`journalctl -t aide`).
+- **After a planned change** (updates, a configuration change): read the latest report,
+  then accept the state as the new baseline with `aide-accept` (keeps the previous one
+  as `aide.db.gz.prev`). Never automatically: an accepted intrusion is invisible.
+- Security updates (Phase 2) change system files: after each maintenance visit, read the
+  reports since the last one and run `aide-accept`.
+
+Rocky Linux 10, as a script: `bash ~/s2-scripts/run.sh aide`
+([scripts/provision-aide.sh](scripts/provision-aide.sh)). It creates the baseline the
+first time (a few minutes) and runs one check at once.
+
+```sh
+systemctl list-timers aide-check.timer        # next run
+ls /var/log/aide/                             # one report per night, 90 days
+journalctl -t aide --since -7d                # findings of the last week
+```
+
+Open: where the reports go besides the machine (control plane, mail). Until then, read
+them at every maintenance visit.

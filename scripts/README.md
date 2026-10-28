@@ -7,7 +7,7 @@ tmux session ([CLAUDE.md](../CLAUDE.md)):
 ```sh
 bash ~/s2-scripts/run.sh phases-2-4                               # then reboot
 bash ~/s2-scripts/run.sh phase-5 fan2go-build                     # then the fan unplug test
-bash ~/s2-scripts/run.sh fan2go-config host-checks gpu-thermal accept-short
+bash ~/s2-scripts/run.sh fan2go-config aide host-checks gpu-thermal accept-short
 bash ~/s2-scripts/run.sh accept-long                              # unattended, hours
 ```
 
@@ -33,6 +33,7 @@ Rocky Linux 10 only for now; on Ubuntu 24.04 follow the runbook's Ubuntu blocks.
 | 3 | `provision-phase-5.sh` | [04](../04-provisioning.md) Phase 5: Docker, NVIDIA Container Toolkit | Short |
 | 4 | `provision-phase-6-fan2go-build.sh` | [04](../04-provisioning.md) Phase 6: sensors, fan2go built for Rocky, `fan2go detect`, fan RPMs | Short; then the fan unplug test by hand |
 | 5 | `provision-phase-6-fan2go-config.sh` | [04](../04-provisioning.md) Phase 6: configuration and service | About 2 minutes (fan measurement) |
+| 5b | `provision-aide.sh` (`run.sh aide`) | [04](../04-provisioning.md) Phase 7: AIDE, nightly check, 90 days of reports | A few minutes (baseline) |
 | 6 | `host-checks.sh` | [05](../05-acceptance.md) section 2 | Short: PASS/FAIL list |
 | 7 | `accept-gpu-thermal.sh` | [05](../05-acceptance.md) GPU thermal, 10 minutes | Watch it |
 | 8 | `accept-short.sh` | [05](../05-acceptance.md) disk health and a short run of every long test | About 3 minutes |

@@ -1,10 +1,10 @@
 #!/bin/bash
 # 04 Phase 7, "File integrity (AIDE)": AIDE watches an explicit list of system paths only
 # (include list, nothing else: a new data directory never needs a change here); a nightly
-# check; one report per night under /var/log/aide/, the last 365 days kept.
+# check; one report per night under /var/log/aide/, the last 3 years (1095 days) kept.
 # Safe to run again: a changed watch list makes a new baseline, otherwise it is kept.
 set -euo pipefail
-KEEP_DAYS=${KEEP_DAYS:-365}
+KEEP_DAYS=${KEEP_DAYS:-1095}
 dnf install -y aide
 
 # Our own configuration replaces the distribution's: only these system paths are watched.

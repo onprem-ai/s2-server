@@ -4,7 +4,7 @@
 # It asks for the sudo password once, keeps sudo alive for all steps (no 5-minute timeout
 # between them), runs each step as root with the right paths, logs each step to
 # ~/s2-logs/<step>-<time>.log, keeps going after a failed step, and prints one summary.
-# Steps: phases-2-4 phase-5 fan2go-build fan2go-config host-checks gpu-thermal accept-short accept-long mark-raid0-compute-only aide
+# Steps: phases-2-4 phase-5 fan2go-build fan2go-config host-checks gpu-thermal accept-short accept-long mark-raid0-compute-only aide debug-tools
 set -uo pipefail
 DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 LOGS="$HOME/s2-logs"; mkdir -p "$LOGS"
@@ -13,7 +13,7 @@ declare -A SCRIPT=(
   [fan2go-build]=provision-phase-6-fan2go-build.sh [fan2go-config]=provision-phase-6-fan2go-config.sh
   [host-checks]=host-checks.sh [gpu-thermal]=accept-gpu-thermal.sh
   [accept-short]=accept-short.sh [accept-long]=accept-long.sh
-  [mark-raid0-compute-only]=mark-raid0-compute-only.sh [aide]=provision-aide.sh )
+  [mark-raid0-compute-only]=mark-raid0-compute-only.sh [aide]=provision-aide.sh [debug-tools]=provision-debug-tools.sh )
 [ $# -ge 1 ] || { echo "usage: bash $0 <step> ...   steps: ${!SCRIPT[*]}"; exit 2; }
 for s in "$@"; do [ -n "${SCRIPT[$s]:-}" ] && [ -f "$DIR/${SCRIPT[$s]}" ] || { echo "unknown step or missing script: $s"; exit 2; }; done
 [ "$(id -u)" = 0 ] && { echo "Run as the admin user (not root, not inside sudo): bash $0 $*"; exit 2; }

@@ -107,6 +107,8 @@ if command -v aide >/dev/null; then
 else
   bad "AIDE installed" "no (run.sh aide, 04 Phase 7)"
 fi
+chk "atop recording (30 s, after a crash)" '[ "$(systemctl is-active atop)" = active ] && ls /var/log/atop/atop_* >/dev/null 2>&1' "$(systemctl is-active atop 2>/dev/null)"
+for t in htop nvtop iotop-c sar tmux; do chk "tool $t" 'command -v $t >/dev/null' ""; done
 chk "clock synchronized" '[ "$(timedatectl show -p NTPSynchronized --value)" = yes ]' ""
 if [ $ROCKY = 1 ]; then info "firewall services" "$(firewall-cmd --list-services)"; else info "firewall" "$(ufw status | head -1)"; fi
 info "Cockpit" "$(systemctl is-active cockpit.socket 2>/dev/null)"

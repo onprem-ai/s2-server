@@ -180,7 +180,19 @@ and GPU failures are in [06 Operations](06-operations.md).
 
 ### Admin tools
 
-Install `tmux` and `ipmitool`:
+Install the admin and diagnosis tools, and let `atop` record the whole machine.
+Rocky Linux 10, as a script: `bash ~/s2-scripts/run.sh debug-tools`
+([scripts/provision-debug-tools.sh](scripts/provision-debug-tools.sh)).
+
+- `atop` records every process, CPU, memory, disk and network every 30 seconds to
+  `/var/log/atop/atop_<date>` (28 days, readable without root). After a hang or crash,
+  the minutes before it are on disk: how a host-wide memory thrash was diagnosed
+  ([260925](learnings/260925-host-test-memory-exhaustion-thrash-crash.md),
+  "Diagnosis with atop"). `sysstat` (`sar`) keeps a lighter 10-minute history.
+- `htop`, `nvtop` (GPUs), `iotop-c` (disk per process) for looking live; `lsof`,
+  `strace`, `tcpdump`, `ethtool`, `nvme-cli`, `smartmontools` for digging.
+
+Also `tmux` and `ipmitool`:
 
 - `tmux` keeps a shell running when the SSH connection drops, so a long step (upgrade,
   driver build, memory test) does not die with it. Two people (or a person and an
@@ -193,8 +205,12 @@ Install `tmux` and `ipmitool`:
   and the card's sensors.
 
 ```sh
-dnf install -y tmux ipmitool                     # Rocky Linux 10
-apt-get install -y tmux ipmitool                 # Ubuntu 24.04
+dnf install -y epel-release && dnf install -y tmux ipmitool atop sysstat htop nvtop iotop-c \
+  lsof strace tcpdump ethtool nvme-cli smartmontools        # Rocky Linux 10
+apt-get install -y tmux ipmitool atop sysstat htop nvtop iotop \
+  lsof strace tcpdump ethtool nvme-cli smartmontools        # Ubuntu 24.04
+# atop: LOGINTERVAL=30, LOGGENERATIONS=28 in /etc/sysconfig/atop (Ubuntu: /etc/default/atop)
+systemctl enable --now atop sysstat
 # as ops: scroll with the mouse wheel, keep a long history
 printf 'set -g mouse on\nset -g history-limit 50000\n' > /home/ops/.tmux.conf
 chown ops: /home/ops/.tmux.conf
@@ -1295,7 +1311,7 @@ known sources.
   directory, Docker's data root or a new data disk anywhere never needs a change here,
   and never fills the report. Keep data out of the listed paths.
 - **Nightly check** at 04:30 with low priority; **one report per night** in
-  `/var/log/aide/aide-<date>.log` (root only), reports older than **365 days** removed
+  `/var/log/aide/aide-<date>.log` (root only), reports older than **3 years** removed
   (about 2 KB each; an intrusion is often found months later).
   A finding also goes to the system log (`journalctl -t aide`).
 - **After a planned change** (updates, a configuration change): read the latest report,
@@ -1310,7 +1326,7 @@ first time (a few minutes) and runs one check at once.
 
 ```sh
 systemctl list-timers aide-check.timer        # next run
-ls /var/log/aide/                             # one report per night, 365 days
+ls /var/log/aide/                             # one report per night, 3 years
 journalctl -t aide --since -7d                # findings of the last week
 ```
 

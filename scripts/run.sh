@@ -23,13 +23,14 @@ sudo -v || exit 1
 ( while true; do sudo -n -v 2>/dev/null; sleep 50; done ) & KEEP=$!
 trap 'kill $KEEP 2>/dev/null' EXIT
 
-declare -a SUM=()
+declare -a SUM=() RUNLOGS=()
 for s in "$@"; do
   log="$LOGS/$s-$(date +%Y%m%d-%H%M).log"
   echo; echo "########## $s  ($(date '+%F %T'))  log: $log"
   sudo LOGDIR="$LOGS" bash "$DIR/${SCRIPT[$s]}" 2>&1 | tee "$log"
-  rc=${PIPESTATUS[0]}
+  rc=${PIPESTATUS[0]}; RUNLOGS+=("$log")
   SUM+=("$(printf '%-14s %s  %s' "$s" "$([ $rc = 0 ] && echo OK || echo "FAILED (exit $rc)")" "$log")")
 done
 echo; echo "########## SUMMARY $(date '+%F %T')"; printf '%s\n' "${SUM[@]}"
-grep -h '^FAIL' "$LOGS"/host-checks-*.log 2>/dev/null | tail -n 20 | sed 's/^/  host-checks: /' | sort -u
+# Failed checks of THIS call's host-checks run only (older logs would show fixed problems).
+for l in "${RUNLOGS[@]:-}"; do case "$l" in *host-checks-*) grep '^FAIL' "$l" | sed 's/^/  host-checks: /';; esac; done | sort -u

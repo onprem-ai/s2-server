@@ -17,10 +17,20 @@ echo "time,gpu,temp_c,power_w,clock_mhz,throttle,fan4_rpm,fan6_rpm,pwm4" > "$LOG
     sleep 10
   done ) & MON=$!
 trap 'kill $MON 2>/dev/null' EXIT
-docker run --rm --gpus all --entrypoint /app/gpu_burn gpu-burn:local -tc $((MIN*60)) 2>&1 | grep -vE '^\s*[0-9.]+%  proc' | tail -15
+BURN=$(docker run --rm --gpus all --entrypoint /app/gpu_burn gpu-burn:local -tc $((MIN*60)) 2>&1 | grep -vE '^\s*[0-9.]+%  proc' | tail -15); echo "$BURN"
 echo "=== cooldown 90 s"; sleep 90
 kill $MON
 echo "=== max temp per GPU:"; awk -F, 'NR>1{if($3>m[$2])m[$2]=$3} END{for(g in m)print "GPU"g": "m[g]" C"}' "$LOG"
-dmesg | grep -iE 'NVRM: Xid|AER:' | tail -5 || true
+MAX=$(awk -F, 'NR>1&&$3+0>m{m=$3+0} END{print m+0}' "$LOG")
+# Thermal slowdown bits of clocks_event_reasons: 0x20 SW thermal, 0x40 HW thermal, 0x80 HW power brake.
+THR=$(awk -F, 'NR>1{v=strtonum($6); if(and(v,0xE0))n++} END{print n+0}' "$LOG")
+XID=$(journalctl -k -b --no-pager | grep -ciE 'NVRM: Xid|AER:' || true)
+OKS=$(echo "$BURN" | grep -c ': OK' || true)
+echo "=== burn: $OKS of $(nvidia-smi -L | grep -c ^GPU) GPUs OK; max $MAX C (limit 80); thermal slowdown samples $THR; Xid/AER $XID"
 nvidia-smi -L
 echo "=== DONE log: $LOG"
+if [ "$OKS" = "$(nvidia-smi -L | grep -c ^GPU)" ] && [ "$MAX" -lt 80 ] && [ "$THR" = 0 ] && [ "$XID" = 0 ]; then
+  echo "RESULT gpu-thermal: PASS"; exit 0
+else
+  echo "RESULT gpu-thermal: FAIL (needs: every GPU OK, below 80 C, no thermal slowdown, no Xid/AER)"; exit 1
+fi

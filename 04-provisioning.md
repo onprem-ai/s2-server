@@ -1310,7 +1310,7 @@ first time (a few minutes) and runs one check at once.
 
 ```sh
 systemctl list-timers aide-check.timer        # next run
-ls /var/log/aide/                             # one report per night, 90 days
+ls /var/log/aide/                             # one report per night, 365 days
 journalctl -t aide --since -7d                # findings of the last week
 ```
 

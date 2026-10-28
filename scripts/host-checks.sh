@@ -57,7 +57,23 @@ done
 fail=$((fail + $(nvidia-smi --query-gpu=persistence_mode,power.limit --format=csv,noheader,nounits | awk -F', ' '$1!="Enabled"||int($2)!=500{n++} END{print n+0}')))
 
 for s in nvidia-persistenced nvidia-power-limit docker; do chk "service $s" '[ "$(systemctl is-active $s)" = active ]' "$(systemctl is-active $s)"; done
-[ -f /etc/fan2go/fan2go.yaml ] && chk "service fan2go" '[ "$(systemctl is-active fan2go)" = active ]' "$(systemctl is-active fan2go)"
+if [ -f /etc/fan2go/fan2go.yaml ]; then
+  Y=/etc/fan2go/fan2go.yaml
+  chk "service fan2go" '[ "$(systemctl is-active fan2go)" = active ]' "$(systemctl is-active fan2go)"
+  chk "fan2go starts at boot" '[ "$(systemctl is-enabled fan2go)" = enabled ]' "$(systemctl is-enabled fan2go)"
+  # The configuration must be the runbook's current one (04 Phase 6), not an older curve.
+  CURVE=$(awk '/^  - id: gpu0_curve/{f=1} f&&/^        - [0-9]+: [0-9]+%/{gsub(/ /,"");printf "%s ",substr($0,2)} f&&/^  - id: gpu1_curve/{exit}' "$Y")
+  chk "fan2go GPU curve is the runbook's" '[ "$CURVE" = "40:30% 55:60% 65:85% 72:100% " ]' "$CURVE"
+  chk "fan2go GPU fans on channels 4, 6" '[ "$(grep -oP "rpmChannel: \K[0-9]+" "$Y" | tr "\n" " ")" = "4 6 " ]' "$(grep -oP 'rpmChannel: \K[0-9]+' "$Y" | tr '\n' ' ')"
+  chk "fan2go on stop: full speed" '[ "$(grep -c "speed: 255" "$Y")" -ge 2 ]' ""
+  chk "fan2go reads both GPUs" '[ "$(grep -c "device: nvidia-" "$Y")" = "$NS" ]' "$(grep -c 'device: nvidia-' "$Y") of $NS"
+  H=$(grep -l '^nct67' /sys/class/hwmon/hwmon*/name 2>/dev/null | xargs -r dirname)
+  for c in 4 6; do
+    chk "GPU fan $c spinning, under fan2go" '[ -n "$H" ] && [ "$(cat $H/fan${c}_input)" -gt 0 ] && [ "$(cat $H/pwm${c}_enable)" = 1 ]' "$( [ -n "$H" ] && echo "$(cat $H/fan${c}_input) rpm, pwm $(cat $H/pwm$c), mode $(cat $H/pwm${c}_enable)")"
+  done
+else
+  info "fan2go" "not configured (only machines with OS-controlled GPU fans, 04 Phase 6)"
+fi
 
 E=$(journalctl -k -b --no-pager 2>/dev/null | grep -ciE 'NVRM: Xid|IO_PAGE_FAULT|AER:')
 chk "no Xid / IO_PAGE_FAULT / AER this boot" '[ "$E" = 0 ]' "$E lines"

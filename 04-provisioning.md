@@ -979,6 +979,11 @@ would lose their airflow whenever fan2go stops. `mode: pwm` keeps the channel in
 take the speed back, whatever mode the channel had before fan2go started. Full speed
 is loud and safe.
 
+When the curve changes here, change it in `scripts/provision-phase-6-fan2go-config.sh`
+and in the check in `scripts/host-checks.sh` too: the host checks fail on a machine
+that still runs an older curve, so it is noticed and brought up to date
+(`run.sh fan2go-config`).
+
 The curve is deliberately steep: full speed from 72 C, well before the GPU's own
 slowdown, at the cost of noise. There is no fan failure detection: when one fan
 stops, the GPUs warm up and the shared curve drives the other fan to full speed. In

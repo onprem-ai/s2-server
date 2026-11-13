@@ -16,6 +16,10 @@ The three documents ASUS lists on the card's
 [manual page](https://www.asus.com/us/supportonly/ipmi%20expansion%20card/helpdesk_manual/)
 (all dated 2025-07-29), downloaded 2026-10-24.
 
+Remote provisioning through this card (screen, mouse, keyboard, power, BIOS, card
+firmware) for an AI agent: [asus-ipmi-mcp](https://github.com/onprem-ai/asus-ipmi-mcp),
+an MCP server in its own repository.
+
 ## Board revisions
 
 The card exists in at least two board revisions, printed on the PCB: **R1.01** and

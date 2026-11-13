@@ -23,7 +23,7 @@ internal notes or problems found and fixed on the way. Those stay in the fleet r
 | Serial numbers | Board ___ ; GPU 0 ___ ; GPU 1 ___ ; NVMe ___ / ___ |
 | Configuration | 2x RTX PRO 6000 Blackwell Server Edition, AMD Ryzen 9 9900X, ___ GB RAM, ___ TB NVMe (RAID 1) |
 | Software at handoff | Rocky Linux / Ubuntu ___ , kernel ___ , NVIDIA driver ___ , BIOS ___ , BMC firmware ___ |
-| Built and tested to | onprem.ai S2 build manual, revision ___ |
+| Built and tested to | onprem.ai S2 technical specification, revision ___ |
 
 | Check | What was verified | Performed by | Date | Result |
 |---|---|---|---|---|

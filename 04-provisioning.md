@@ -601,7 +601,7 @@ Run every GPU at 500 W. The RTX PRO 6000 Blackwell allows 300 to 600 W and ships
 600 W. At 600 W the GPU hits its limit, drops its clocks and boosts again in a loop
 (312 seconds of power capping in one concurrency test on an S2); the loss at
 500 W is small for inference, which waits on memory more than on compute. The 500 W
-limit also keeps two GPUs and the CPU inside what a desktop PSU delivers, and it is
+limit also keeps two GPUs and the CPU well inside the PSU's rating, and it is
 the limit the S2 cooling was tested at (Phase 6). On other GPUs, choose the limit the
 same way and write it in the machine's record.
 

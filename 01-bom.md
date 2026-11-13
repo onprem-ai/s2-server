@@ -34,25 +34,6 @@ machine. [bom.csv](bom.csv) is the same list for ordering.
 | 23 | Fire suppression in the chassis (optional) | MAUS Switzerland Handfeuerlöscher Stixx «Pro», fire class ABCF (self-triggering potassium aerosol, 9.8 x 1.8 x 1 cm, 26 g) | 1 | 1350-1 (EAN 7350015530164) | MAUS Switzerland | Triggers by itself at 170 to 180 C, no power needed; leaves no residue on electronics. Protects up to 0.1 m³, the chassis is about 0.035 m³: one is enough. Stick it to the inside of the chassis lid, holes facing down, 2 to 3 cm free in front of them, away from the fan intakes. Replace after 5 years: note the date in the machine record |
 | 24 | BMC (optional, replaces item 13) | ASUS IPMI Expansion Card-SI (ASPEED AST2600) | 1 | 90MC0AH0-MVUBY0 / -MVUBY1 | TODO | Full IPMI/Redfish BMC with its own video. Board revision R1.04, all cables in the box ([`hardware/ipmi-card/`](hardware/ipmi-card/)). On this board without in-band access (needs a special BIOS from ASUS support) |
 
-## Indicative cost
-
-As of **2026-10-26**, one server, single units, **without VAT**:
-
-| | CHF | EUR | USD | Share |
-|---|---|---|---|---|
-| 2x NVIDIA RTX PRO 6000 Blackwell Server Edition | ~35,200 | ~33,600 | ~38,000 | **~90 %** |
-| Everything else (board, CPU, 64 GB RAM, disks, chassis, PSU, fans, KVM) | ~3,600 | ~3,600 | ~4,200 | ~10 % |
-| **Total** | **~38,800** | **~37,200** | **~42,200** | |
-
-**The point of the S2: about 90 % of the money goes into the GPUs.** The platform around
-them is a desktop build of about 3,600 CHF/EUR (a third of it the RAM, at 2026 DDR5
-prices), so nearly every franc buys GPU memory and compute for inference, not server
-overhead.
-
-> **Prices are indicative only and very volatile.** GPU prices in particular change
-> week to week and differ a lot between suppliers and countries. Get current quotes
-> before ordering. Optional items (UPS, rack rails, fire suppression) are not included.
-
 ## Tested configuration
 
 Tested with Rocky Linux 10.2 (kernel 6.12) and Ubuntu 24.04 (kernel 6.17).
@@ -71,10 +52,10 @@ Tested with Rocky Linux 10.2 (kernel 6.12) and Ubuntu 24.04 (kernel 6.17).
 
 ## Why these parts
 
-- **Board and CPU:** an AM5 desktop platform with two CPU-attached x16 slots. The two
+- **Board and CPU:** an AM5 platform with two CPU-attached x16 slots. The two
   GPUs run at Gen5 x8 each, which is the normal state on this platform, not a fault.
-  The price of it: GPU-to-GPU traffic goes through the CPU, which needs `iommu=pt`
-  ([04](04-provisioning.md) Phase 4).
+  The trade-off: no PCIe switch and no NVLink, so GPU-to-GPU DMA crosses the CPU's PCIe
+  root complex, at x8 per GPU, and needs `iommu=pt` ([04](04-provisioning.md) Phase 4).
 - **Passive server-edition GPUs:** they rely on chassis airflow. The board's fan curves
   never see GPU temperature, hence the dedicated GPU fans and fan2go
   ([04](04-provisioning.md) Phase 6, [260720](learnings/260720-gpu-fan-hub-alphacool-es-guardian.md)).

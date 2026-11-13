@@ -113,7 +113,7 @@ docker run --rm --device nvidia.com/gpu=all ubuntu:24.04 nvidia-smi -L   # throu
 ### Does every GPU get its full PCIe bandwidth?
 
 Each GPU must get the number of PCIe lanes the machine's slot plan gives it: x16 for
-one GPU on a CPU slot, x8 each for two GPUs on a desktop platform such as the S2. A
+one GPU on a CPU slot, x8 each for two GPUs on the S2 ([slot plan](02-assembly.md#slot-plan)). A
 GPU with half its lanes moves data at half the rate: model loading takes twice as
 long, and a model split over several GPUs (tensor parallel) slows down at every step.
 Nothing fails and nothing is logged, so only this check finds it.
@@ -130,7 +130,7 @@ back under load, also with ASPM off (check `pcie.link.gen.current` with
 `nvidia-smi` under load). The width does not change with load. A width below the slot
 plan ([02](02-assembly.md#slot-plan)) has one of these causes, in order of likelihood:
 
-1. **A disk shares the GPU's lanes.** On many desktop boards an M.2 slot takes lanes
+1. **A disk shares the GPU's lanes.** On many boards an M.2 slot takes lanes
    from a GPU slot. On the S2, an NVMe in M.2_2 drops GPU 1 from x8 to x4: move it to
    M.2_3 or M.2_4 ([slot plan](02-assembly.md#slot-plan)). The same disk then also shows up on a CPU
    root port next to the GPUs in `lspci -tv`.

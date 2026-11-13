@@ -28,8 +28,9 @@ A disk in M.2_2 shows as an NVMe on root port `00:01.4` with GPU 1 at Gen5 x4
 (`lspci -tv`, the link width check in [05](05-acceptance.md)). Move it to M.2_3 or M.2_4.
 
 Two GPUs at x8 each is the normal state on this platform, not a fault. The two GPUs
-are on separate root ports of the CPU, so peer-to-peer traffic goes through the CPU,
-and `iommu=pt` is required for it (Phase 4). The IPMI card's BMC cable to the board's BMC header
+are on separate root ports of the CPU. Peer-to-peer DMA goes directly from one GPU to
+the other over the CPU's PCIe root complex (not through CPU cores or system memory),
+and `iommu=pt` is required for it ([04](04-provisioning.md) Phase 4). The IPMI card's BMC cable to the board's BMC header
 gives the card the board's sensors. The SPI cable to the TPM/SPI header is for BIOS
 updates through the card, which ASUS does not support on this board
 ([compatibility list](hardware/ipmi-card/README.md#what-the-card-can-do-on-the-s2s-board)); connect it anyway, it is harmless.

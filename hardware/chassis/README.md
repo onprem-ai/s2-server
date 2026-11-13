@@ -10,6 +10,8 @@ Downloaded 2026-10-24 from SilverStone.
 |---|---|---|
 | [SilverStone_RM4A_manual.pdf](SilverStone_RM4A_manual.pdf) | User manual: parts list, expansion card retainer, component limits | [silverstonetek.com](https://www.silverstonetek.com/downloads/Manual/case/Multi-RM4A-Manual.pdf) |
 | [server-s2.png](server-s2.png) | Product image of the S2 in the RM4A | supplied by the team, 2026-10-26 |
+| [server-s2-logo.png](server-s2-logo.png) | The same image with the onprem.ai logo on the lid; used on the [repository front page](../../README.md) | supplied by the team, 2026-11-13 |
+| [server-s2-interior.webp](server-s2-interior.webp) | The S2 open, from the front: GPU fan duct and both GPUs, CPU cooler, rear fans, PSU | supplied by the team, 2026-11-13 |
 | [SilverStone_RM4A_product_sheet_EN.pdf](SilverStone_RM4A_product_sheet_EN.pdf) | Product sheet | [silverstonetek.com](https://www.silverstonetek.com/upload/sstedm/rm4a/RM4A-ProductSheetEN.pdf) |
 
 ## Key facts for the S2

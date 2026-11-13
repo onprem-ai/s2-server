@@ -23,7 +23,7 @@
 | Component | Specification |
 |---|---|
 | GPUs | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition, 96 GB each (192 GB) |
-| PCIe fabric | PCIe 5.0 x8 per GPU; GPU-to-GPU by direct P2P DMA over the CPU's PCIe root complex, no PCIe switch, no NVLink |
+| PCIe fabric | PCIe 5.0 x8 per GPU; GPU-to-GPU by direct P2P DMA over the CPU's PCIe root complex |
 | GPU power | 600 W, capped at 500 W |
 | Board | ASUS ProArt X870E-CREATOR WIFI (AM5, X870E) |
 | CPU | AMD Ryzen 9 9900X, 12 cores, PCIe 5.0 |

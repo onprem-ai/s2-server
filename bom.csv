@@ -1,24 +1,24 @@
-item,part,model,qty,part_number,supplier,notes
-1,Mainboard,ASUS ProArt X870E-CREATOR WIFI,1,,,
-2,CPU,AMD Ryzen 9 9900X,1,,,
-3,CPU cooler,Thermalright Peerless Assassin 120 Mini Black,1,,,135 mm high; chassis limit 137 mm
-4,RAM,DDR5 32 GB non-ECC (any brand; 64 GB total),2,,,one per channel
-5,GPU,NVIDIA RTX PRO 6000 Blackwell Server Edition 96 GB,2,,,passive
-6,NVMe disk 1,WD_BLACK SN7100 2 TB (Sandisk),1,WDS200T4X0E,,M.2_1; RAID 1 with item 7
-7,NVMe disk 2,WD_BLACK SN7100 2 TB (Sandisk),1,WDS200T4X0E,,M.2_3 or M.2_4; never M.2_2; RAID 1 with item 6
-8,Chassis,SilverStone RM4A,1,SST-RM4A,,4U rackmount; 2x 80 mm rear fan positions
-9,GPU fans,Arctic S12038-8K,2,,,PSU-powered
-10,Fan power adapters,CRJ Electronics 15-Pin SATA to 4-Pin PWM Fan Power Adapter Cable,2,4063 (UPC 850028770092),CRJ Electronics (https://crjelectronics.com/products/4063?variant=40226517155928),one per GPU fan; 12 V from PSU SATA; PWM and tach from the board header
-11,PSU,Seasonic PRIME PX-2200,1,PRIME-PX-2200-ATX30,,200-240 V only
-12,Power cord,C19,1,,,
-13,Remote KVM,Sipeed NanoKVM-PCIe,1,,,open source; HDMI capture + USB HID + virtual USB drive; ATX power via 9-pin header
-15,Network cables,Cat6a,3,,,
-16,UPS (optional),1.5 kW pure sine,1,,,
-17,GPU fan duct,Custom 3D-printed part (both GPU fans in series),1,STL in hardware/gpu-fan-duct/,printed in-house,Prusament PETG V0 (UL94 V-0); natural or black
-18,Rear fans,Arctic P8 Max Black 80 mm,2,ACFAN00286A,,rear exhaust behind the CPU; board headers
-19,Rack rails (optional),SilverStone RMS05-22,1,SST-RMS05-22,,only for rack mounting; RM4A takes no standard rails
-20,Chassis fans front,120 mm PWM fan (lower power; model TODO),2,,,front positions; blowing in; board headers
-21,Fan grills 120 mm,120 mm fan grill (model TODO),3,,,three 120 mm front positions
-22,Fan grills 80 mm,80 mm fan grill (model TODO),2,,,two 80 mm rear fans
-23,Fire suppression (optional),MAUS Switzerland Handfeuerlöscher Stixx «Pro» fire class ABCF,1,1350-1,MAUS Switzerland,self-triggering aerosol 170-180 C; up to 0.1 m3; inside chassis lid holes down; replace after 5 years
-24,BMC (optional; replaces 13),ASUS IPMI Expansion Card-SI,1,90MC0AH0-MVUBY0,,full BMC; in-band needs special ASUS BIOS
+item,part,model,qty,part_number,notes
+1,Mainboard,ASUS ProArt X870E-CREATOR WIFI,1,,
+2,CPU,AMD Ryzen 9 9900X,1,,
+3,CPU cooler,Thermalright Peerless Assassin 120 Mini Black,1,,135 mm high; chassis limit 137 mm
+4,RAM,DDR5 32 GB non-ECC (any brand; 64 GB total),2,,one per channel
+5,GPU,NVIDIA RTX PRO 6000 Blackwell Server Edition 96 GB,2,,passive
+6,NVMe disk 1,WD_BLACK SN7100 2 TB (Sandisk),1,WDS200T4X0E,M.2_1; RAID 1 with item 7
+7,NVMe disk 2,WD_BLACK SN7100 2 TB (Sandisk),1,WDS200T4X0E,M.2_3 or M.2_4; never M.2_2; RAID 1 with item 6
+8,Chassis,SilverStone RM4A,1,SST-RM4A,4U rackmount; 2x 80 mm rear fan positions
+9,GPU fans,Arctic S12038-8K,2,,PSU-powered
+10,Fan power adapters,CRJ Electronics 15-Pin SATA to 4-Pin PWM Fan Power Adapter Cable,2,4063 (UPC 850028770092),one per GPU fan; 12 V from PSU SATA; PWM and tach from the board header
+11,PSU,Seasonic PRIME PX-2200,1,PRIME-PX-2200-ATX30,200-240 V only
+12,Power cord,C19,1,,
+13,Remote KVM,Sipeed NanoKVM-PCIe,1,,open source; HDMI capture + USB HID + virtual USB drive; ATX power via 9-pin header
+15,Network cables,Cat6a,3,,
+16,UPS (optional),1.5 kW pure sine,1,,
+17,GPU fan duct,Custom 3D-printed part (both GPU fans in series),1,STL in hardware/gpu-fan-duct/,Prusament PETG V0 (UL94 V-0); natural or black
+18,Rear fans,Arctic P8 Max Black 80 mm,2,ACFAN00286A,rear exhaust behind the CPU; board headers
+19,Rack rails (optional),SilverStone RMS05-22,1,SST-RMS05-22,only for rack mounting; RM4A takes no standard rails
+20,Chassis fans front,120 mm PWM fan (lower power; model TODO),2,,front positions; blowing in; board headers
+21,Fan grills 120 mm,120 mm fan grill (model TODO),3,,three 120 mm front positions
+22,Fan grills 80 mm,80 mm fan grill (model TODO),2,,two 80 mm rear fans
+23,Fire suppression (optional),MAUS Switzerland Handfeuerlöscher Stixx «Pro» fire class ABCF,1,1350-1,self-triggering aerosol 170-180 C; up to 0.1 m3; inside chassis lid holes down; replace after 5 years
+24,BMC (optional; replaces 13),ASUS IPMI Expansion Card-SI,1,90MC0AH0-MVUBY0,full BMC; in-band needs special ASUS BIOS

@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 ## Two repositories, one strict split
 

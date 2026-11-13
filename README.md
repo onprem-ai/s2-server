@@ -97,7 +97,7 @@ and updates its own software on top.
 ## Per machine
 
 This repository is generic: it holds no data about specific machines (rules for
-contributors and AI agents: [CLAUDE.md](CLAUDE.md)).
+contributors and AI agents: [AGENTS.md](AGENTS.md)).
 [machine-record.md](machine-record.md) is an empty template: copy it to the **fleet
 repository** (separate, one record per machine) and fill it in there, from phase 2 to
 phase 5. At handoff the customer gets an

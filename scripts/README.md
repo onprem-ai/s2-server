@@ -2,7 +2,7 @@
 
 The runbook's steps as scripts, in order. Copy the folder to the machine
 (`~/s2-scripts/`) and run them through **`run.sh`**, as the admin user, in the shared
-tmux session ([CLAUDE.md](../CLAUDE.md)):
+tmux session ([AGENTS.md](../AGENTS.md)):
 
 ```sh
 bash ~/s2-scripts/run.sh phases-2-4                               # then reboot

@@ -1,7 +1,7 @@
 # Machine record: template
 
 > **Empty template. Do not fill it in here.** This repository is generic and holds no
-> data about specific machines ([CLAUDE.md](CLAUDE.md)). Copy this template to the
+> data about specific machines ([AGENTS.md](AGENTS.md)). Copy this template to the
 > **fleet repository** (a separate repository with one record per machine) and fill it
 > in there.
 

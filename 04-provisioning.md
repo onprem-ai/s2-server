@@ -695,6 +695,43 @@ where no out-of-memory event ever fires
 prevents that is running nothing heavy on the host outside containers, and a memory
 limit on every container.
 
+### Kill a model server before the host runs out of memory
+
+Recommended. With `vm.panic_on_oom = 1` a host-wide out-of-memory event reboots the
+machine and stops every model on it. Two model servers loading their weights at the
+same time can cause one
+([261120](learnings/261120-second-model-load-oom-kills-model-server.md)): the container
+memory limits do not apply to a host-wide event. `earlyoom` acts earlier. When
+available memory **and** available swap are both at or below 5 %, it stops one process,
+and it picks the vLLM engine process first, so one model stops and the machine, its
+database and the platform keep running. The kernel's own handling stays as the last
+resort.
+
+```sh
+# Ubuntu 24.04
+apt install -y earlyoom
+cat > /etc/default/earlyoom <<'EOF'
+EARLYOOM_ARGS="-r 3600 -m 5 -s 5 --prefer ^VLLM::EngineCor --avoid ^(postgres|redis-server|dockerd|containerd|onprem-ai-node|tailscaled|sshd|chisel|systemd|systemd-journal|kdump-tools)$"
+EOF
+systemctl enable earlyoom
+systemctl restart earlyoom
+journalctl -u earlyoom -n 3    # "sending SIGTERM when mem avail <= 5.00% and swap free <= 5.00%"
+```
+
+- The patterns are regular expressions on the **process name** (`comm`, at most 15
+  characters): the vLLM engine process is `VLLM::EngineCor`. They must contain no
+  spaces or quotes: the service passes the arguments unchanged, without a shell.
+- `--prefer` makes the engine process the first choice; `--avoid` protects the
+  database, the container engine, the node service, SSH, the tunnels and the crash
+  dump service. Add the names of anything else the machine cannot do without.
+- `-m 5 -s 5` is SIGTERM; `earlyoom` sends SIGKILL at half of that (2.5 %).
+- It does not replace the memory limit on every container, and it does not catch a
+  reclaim thrash where available memory and swap stay above the limits
+  ([260925](learnings/260925-host-test-memory-exhaustion-thrash-crash.md)).
+- Tested on Ubuntu with `earlyoom` 1.9.0 (dummy processes named like the engine and
+  the container engine: only the one named like the engine was stopped). Rocky Linux
+  10 (`earlyoom` is in EPEL): not yet tested, so there is no `run.sh` step for it yet.
+
 ### Logs and CPU
 
 ```sh
